@@ -5,7 +5,7 @@ from numpy import array_equal
 from navigation.lane_piece import LanePiece
 
 
-class TestWriter(unittest.TestCase):
+class LanePieceTest(unittest.TestCase):
     def test_WhenConstructed_ThenCheckProperties(self):
         lane_piece = LanePiece(width=3.2, points=array([[0, 0, 0], [1, 0, 0]]))
         self.assertAlmostEqual(3.2, lane_piece.Width())
