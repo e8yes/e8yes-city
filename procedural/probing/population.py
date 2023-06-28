@@ -118,12 +118,14 @@ def _GenerateCityCores(city_size: float) -> _CityCores:
 
 
 def _SnapToLocalGrid(locations: ndarray):
+    # Moves/discretizes the locations to their closes grid point. A grid is a uniform mesh composed of squares of width _PROBE_GRID_DiZE_METER
     grid_corners = locations//_PROBE_GRID_SIZE_METER
     return grid_corners*_PROBE_GRID_SIZE_METER
 
 
 def _SampleFromIstropicBivariateExponentialDistribution(expected_radius: float,
                                                         size: int) -> ndarray:
+    # TODO: A bivariate exponential distribution with correlation could model the population more realistically.
     qs = uniform(low=0, high=1, size=size)
     radii = -expected_radius*log(1 - sqrt(qs))
     thetas = uniform(low=0, high=2*pi, size=size)
@@ -186,11 +188,16 @@ def _ComputePopulationEstimates(location: ndarray,
 
 @dataclass
 class PopulationProbe:
-    """_summary_
+    """A population probe is a stratified sample point in the city which gives an estimate of the population density in its surrounding area.
     """
 
+    # A 3d location in Cartesian coordinate of shape (N, 3).
     location: ndarray
+
+    # The expected number of people living in the 200m*200m grid, centered at the location.
     population_grid_200: float
+
+    # The expected number of people living in the 1km*1km grid, centered at the location.
     population_grid_1000: float
 
 
