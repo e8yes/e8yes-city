@@ -203,11 +203,11 @@ class PopulationProbe:
 
 def GeneratePopulationProbes(city_size: float,
                              seed_number: int = 13) -> List[PopulationProbe]:
-    """_summary_
+    """Generates population probes randomly given the city area and the population size. The generation follows an exponentially distributed population model at multiple core areas. TODO: Should take the terrain (potentially a height field map) into consideration.
 
     Args:
-        city_size (float): _description_
-        seed_number (int, optional): _description_. Defaults to 13.
+        city_size (float): Area of the city, in  m^2
+        seed_number (int, optional): The random seed used for the generation. Defaults to 13.
 
     Returns:
         List[PopulationProbe]: _description_
