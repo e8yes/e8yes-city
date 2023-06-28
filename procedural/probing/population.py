@@ -48,21 +48,25 @@ _PROBE_GRID_SIZE_METER = 200
 
 
 def _CartesianToLocation2d(xs: ndarray, ys: ndarray) -> ndarray:
+    # Converts points from Cartesian coordinate to a location array of shape (N, 2).
     xs = expand_dims(a=xs, axis=1)
     ys = expand_dims(a=ys, axis=1)
     return concatenate((xs, ys), axis=1)
 
 
 def _PolarToLocation2d(radii: ndarray, thetas: ndarray) -> ndarray:
+    # Converts points from polar coordinate to a location (Cartesian) array of shape (N, 2)
     return _CartesianToLocation2d(xs=radii*cos(thetas),
                                   ys=radii*sin(thetas))
 
 
 def _RadianToDirection2d(thetas: ndarray) -> ndarray:
+    # Converts unit vectors defined in polar coordinate to an array (Cartesian) of shape (N, 2)
     return _PolarToLocation2d(radii=1, thetas=thetas)
 
 
 def _CreateBases2d(directions: ndarray) -> ndarray:
+    # Creates orthogonal bases in R2 from the specified directions.
     orthogonals = zeros(shape=directions.shape)
     orthogonals[:, 0] = directions[:, 1]
     orthogonals[:, 1] = -directions[:, 0]
@@ -73,6 +77,7 @@ def _CreateBases2d(directions: ndarray) -> ndarray:
 
 
 class _CityCores:
+    # Stores information associated with core areas in the city.
     def __init__(self,
                  locations: ndarray,
                  bases: ndarray,
