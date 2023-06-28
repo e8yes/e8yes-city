@@ -48,25 +48,32 @@ _PROBE_GRID_SIZE_METER = 200
 
 
 def _CartesianToLocation2d(xs: ndarray, ys: ndarray) -> ndarray:
-    # Converts points from Cartesian coordinate to a location array of shape (N, 2).
+    """Converts points from Cartesian coordinate to a location array of shape
+    (N, 2).
+    """
     xs = expand_dims(a=xs, axis=1)
     ys = expand_dims(a=ys, axis=1)
     return concatenate((xs, ys), axis=1)
 
 
 def _PolarToLocation2d(radii: ndarray, thetas: ndarray) -> ndarray:
-    # Converts points from polar coordinate to a location (Cartesian) array of shape (N, 2)
+    """Converts points from polar coordinate to a location (Cartesian) array
+    of shape (N, 2)
+    """
     return _CartesianToLocation2d(xs=radii*cos(thetas),
                                   ys=radii*sin(thetas))
 
 
 def _RadianToDirection2d(thetas: ndarray) -> ndarray:
-    # Converts unit vectors defined in polar coordinate to an array (Cartesian) of shape (N, 2)
+    """Converts unit vectors defined in polar coordinate to an array
+    (Cartesian) of shape (N, 2)
+    """
     return _PolarToLocation2d(radii=1, thetas=thetas)
 
 
 def _CreateBases2d(directions: ndarray) -> ndarray:
-    # Creates orthogonal bases in R2 from the specified directions.
+    """Creates orthogonal bases in R2 from the specified directions.
+    """
     orthogonals = zeros(shape=directions.shape)
     orthogonals[:, 0] = directions[:, 1]
     orthogonals[:, 1] = -directions[:, 0]
@@ -77,7 +84,9 @@ def _CreateBases2d(directions: ndarray) -> ndarray:
 
 
 class _CityCores:
-    # Stores information associated with core areas in the city.
+    """Stores information associated with core areas in the city.
+    """
+
     def __init__(self,
                  locations: ndarray,
                  bases: ndarray,
@@ -118,14 +127,18 @@ def _GenerateCityCores(city_size: float) -> _CityCores:
 
 
 def _SnapToLocalGrid(locations: ndarray):
-    # Moves/discretizes the locations to their closes grid point. A grid is a uniform mesh composed of squares of width _PROBE_GRID_DiZE_METER
+    """Moves/discretizes the locations to their closes grid point. A grid is a
+    uniform mesh composed of squares of width _PROBE_GRID_DiZE_METER
+    """
     grid_corners = locations//_PROBE_GRID_SIZE_METER
     return grid_corners*_PROBE_GRID_SIZE_METER
 
 
 def _SampleFromIstropicBivariateExponentialDistribution(expected_radius: float,
                                                         size: int) -> ndarray:
-    # TODO: A bivariate exponential distribution with correlation could model the population more realistically.
+    """TODO: A bivariate exponential distribution with correlation could model
+    the population more realistically.
+    """
     qs = uniform(low=0, high=1, size=size)
     radii = -expected_radius*log(1 - sqrt(qs))
     thetas = uniform(low=0, high=2*pi, size=size)
@@ -148,7 +161,12 @@ def _GenerateProbePoints(city_size: float,
 
     global_probes = city_cores.locations[core_choices] +                    \
         squeeze(matmul(city_cores.bases[core_choices], local_probes), axis=2)
-    return unique(ar=global_probes, axis=0)
+    global_probes = unique(ar=global_probes, axis=0)
+
+    # TODO: should use a height field instead of hard coding it to a fixed
+    # value.
+    height = full(shape=(global_probes.shape[0], 1), fill_value=0.0)
+    return concatenate((global_probes, height), axis=1)
 
 
 def _EvaluatePopulationDensityAt(locations: ndarray,
@@ -167,6 +185,7 @@ def _EvaluatePopulationDensityAt(locations: ndarray,
 
 
 def _ComputePopulationEstimates(location: ndarray,
+                                population_size: float,
                                 city_cores: _CityCores,
                                 area_width: float,
                                 patch_width: int) -> float:
@@ -182,39 +201,52 @@ def _ComputePopulationEstimates(location: ndarray,
     evaluation_locations = concatenate((loc_x, loc_y), axis=1)
 
     densities = _EvaluatePopulationDensityAt(evaluation_locations, city_cores)
-    populations = patch_width**2*densities
-    return sum(populations)
+    area_densities = patch_width**2*densities
+    return population_size*sum(area_densities)
 
 
 @dataclass
 class PopulationProbe:
-    """A population probe is a stratified sample point in the city which gives an estimate of the population density in its surrounding area.
+    """A population probe is a stratified sample point in the city which gives
+    an estimate of the population density in its surrounding area.
     """
 
     # A 3d location in Cartesian coordinate of shape (N, 3).
     location: ndarray
 
-    # The expected number of people living in the 200m*200m grid, centered at the location.
+    # The expected number of people living in the 200m*200m grid, centered at
+    # the location.
     population_grid_200: float
 
-    # The expected number of people living in the 1km*1km grid, centered at the location.
+    # The expected number of people living in the 1km*1km grid, centered at
+    # the location.
     population_grid_1000: float
 
 
 def GeneratePopulationProbes(city_size: float,
+                             population_size: float,
                              seed_number: int = 13) -> List[PopulationProbe]:
-    """Generates population probes randomly given the city area and the population size. The generation follows an exponentially distributed population model at multiple core areas. TODO: Should take the terrain (potentially a height field map) into consideration.
+    """Generates population probes randomly given the city area and the
+    population size. The generation follows an exponentially distributed
+    population model at multiple core areas. TODO: Should take the terrain
+    (potentially a height field map) into consideration.
 
     Args:
-        city_size (float): Area of the city, in  m^2
-        seed_number (int, optional): The random seed used for the generation. Defaults to 13.
+        city_size (float): The magnitude of the city, in meter.
+        population_size (float): The number of people living in this city.
+        seed_number (int, optional): The random seed used for the generation.
+            Defaults to 13.
 
     Returns:
-        List[PopulationProbe]: _description_
+        List[PopulationProbe]: A list of generated population probes. It could
+            return an empty array when the city is too small in size.
     """
     seed(seed_number)
 
     city_cores = _GenerateCityCores(city_size=city_size)
+    if city_cores.core_count == 0:
+        return list()
+
     probe_points = _GenerateProbePoints(
         city_size=city_size, city_cores=city_cores)
 
@@ -223,18 +255,20 @@ def GeneratePopulationProbes(city_size: float,
         location = probe_points[i]
         population_grid_200 = _ComputePopulationEstimates(
             location=location,
+            population_size=population_size,
             city_cores=city_cores,
             area_width=200,
             patch_width=50)
         population_grid_1000 = _ComputePopulationEstimates(
             location=location,
+            population_size=population_size,
             city_cores=city_cores,
             area_width=1000,
             patch_width=100)
 
-        probe = PopulationProbe(location=location,
-                                population_grid_200=population_grid_200,
-                                population_grid_1000=population_grid_1000)
-        result.append(probe)
+        result.append(PopulationProbe(
+            location=location,
+            population_grid_200=population_grid_200,
+            population_grid_1000=population_grid_1000))
 
     return result
