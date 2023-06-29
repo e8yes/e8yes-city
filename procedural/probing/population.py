@@ -41,10 +41,11 @@ from numpy.random import uniform
 from typing import List
 
 
-# TODO: These parameters could be derived from just the population size.
 _SQUARE_METERS_PER_CORE = 7*10**6
 _PROBES_PER_SQUARE_METER = 30/10**6
 _PROBE_GRID_SIZE_METER = 200
+_PERSONS_PER_PROBE = 6.7
+_BASE_POPULATION_PER_SQUARE_METER = 4.6/10**3
 
 
 def _CartesianToLocation2d(xs: ndarray, ys: ndarray) -> ndarray:
@@ -169,6 +170,11 @@ def _GenerateProbePoints(city_size: float,
     return concatenate((global_probes, height), axis=1)
 
 
+def _EstimatePopulationSize(city_size: float, probe_count: int) -> float:
+    return probe_count*_PERSONS_PER_PROBE + \
+        _BASE_POPULATION_PER_SQUARE_METER*city_size**2
+
+
 def _EvaluatePopulationDensityAt(locations: ndarray,
                                  city_cores: _CityCores):
     densities = zeros(shape=locations.shape[0])
@@ -224,16 +230,14 @@ class PopulationProbe:
 
 
 def GeneratePopulationProbes(city_size: float,
-                             population_size: float,
                              seed_number: int = 13) -> List[PopulationProbe]:
-    """Generates population probes randomly given the city area and the
-    population size. The generation follows an exponentially distributed
-    population model at multiple core areas. TODO: Should take the terrain
-    (potentially a height field map) into consideration.
+    """Generates population probes randomly given the city size. The
+    generation follows an exponentially distributed population model at
+    multiple core areas. TODO: Should take the terrain (potentially
+    represented by a height field) into consideration.
 
     Args:
         city_size (float): The magnitude of the city, in meter.
-        population_size (float): The number of people living in this city.
         seed_number (int, optional): The random seed used for the generation.
             Defaults to 13.
 
@@ -246,9 +250,10 @@ def GeneratePopulationProbes(city_size: float,
     city_cores = _GenerateCityCores(city_size=city_size)
     if city_cores.core_count == 0:
         return list()
-
     probe_points = _GenerateProbePoints(
         city_size=city_size, city_cores=city_cores)
+    population_size = _EstimatePopulationSize(
+        city_size=city_size, probe_count=probe_points.shape[0])
 
     result = list()
     for i in range(probe_points.shape[0]):

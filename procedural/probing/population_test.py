@@ -24,11 +24,11 @@ def _Range(probes: List[PopulationProbe]) -> float:
 
 class PopulationTest(unittest.TestCase):
     def test_WhenCitySizeIsSmall_ThenExpectEmptyResult(self):
-        probes = GeneratePopulationProbes(city_size=100, population_size=1)
+        probes = GeneratePopulationProbes(city_size=100)
         self.assertEqual(0, len(probes))
 
     def test_WhenCitySizeIsNormal_ThenCheckProbeLocationShape(self):
-        probes = GeneratePopulationProbes(city_size=3000, population_size=1)
+        probes = GeneratePopulationProbes(city_size=3000)
         self.assertLess(0, len(probes))
 
         for probe in probes:
@@ -36,7 +36,7 @@ class PopulationTest(unittest.TestCase):
             self.assertEqual(3, probe.location.shape[0])
 
     def test_WhenCitySizeIsNormal_ThenCheckUniqueness(self):
-        probes = GeneratePopulationProbes(city_size=3000, population_size=1)
+        probes = GeneratePopulationProbes(city_size=3000)
         self.assertLess(0, len(probes))
 
         location_set = set()
@@ -48,15 +48,13 @@ class PopulationTest(unittest.TestCase):
             location_set.add(location_tuple)
 
     def test_WhenCitySizeIsNormal_ThenCheckProbeNonUniformity(self):
+        # TODO: Apply Kolmogorov Smirnov test here.
         pass
 
     def test_WhenCitySizeIncreases_ThenCheckProbeRange(self):
-        probes_3000 = GeneratePopulationProbes(
-            city_size=3000, population_size=1)
-        probes_5000 = GeneratePopulationProbes(
-            city_size=5000, population_size=1)
-        probes_7000 = GeneratePopulationProbes(
-            city_size=7000, population_size=1)
+        probes_3000 = GeneratePopulationProbes(city_size=3000)
+        probes_5000 = GeneratePopulationProbes(city_size=5000)
+        probes_7000 = GeneratePopulationProbes(city_size=7000)
 
         probe_3000_range = _Range(probes_3000)
         probe_5000_range = _Range(probes_5000)
@@ -65,9 +63,9 @@ class PopulationTest(unittest.TestCase):
         self.assertGreater(probe_5000_range, probe_3000_range)
         self.assertGreater(probe_7000_range, probe_5000_range)
 
-    def test_WhenPopulationSizeIsOne_ThenTotalProbePopulationIsCloseToOne(
+    def test_WhenCitySizeIsNormal_ThenCheckPopulationSize(
             self):
-        probes = GeneratePopulationProbes(city_size=10000, population_size=1)
+        probes = GeneratePopulationProbes(city_size=10000)
 
         population_200 = 0.0
         population_1000 = 0.0
@@ -75,7 +73,7 @@ class PopulationTest(unittest.TestCase):
             population_200 += probe.population_grid_200
             population_1000 += probe.population_grid_1000
 
-        self.assertTrue(population_200 > 0.7 and population_200 < 1.2)
+        self.assertAlmostEqual(348*10**3, population_200, delta=5*10**3)
         self.assertTrue(population_1000 > 0.0)
 
 
