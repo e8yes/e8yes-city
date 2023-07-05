@@ -19,15 +19,18 @@ set(LIBS
     Eigen3::Eigen)
 
 # Standalone library.
-add_library(lib${PROJECT_NAME} ${SRCS})
-target_include_directories(lib${PROJECT_NAME} PUBLIC .)
-target_link_libraries(lib${PROJECT_NAME} PUBLIC ${LIBS})
+add_library(${PROJECT_NAME}_standalone ${SRCS})
+target_include_directories(${PROJECT_NAME}_standalone PUBLIC .)
+target_link_libraries(${PROJECT_NAME}_standalone PUBLIC ${LIBS})
 
 # Tests.
 function(add_test TEST_NAME SOURCE_FILE_NAME)
     add_executable(${TEST_NAME} ${SOURCE_FILE_NAME})
     target_include_directories(${TEST_NAME} PRIVATE .)
-    target_link_libraries(${TEST_NAME} PRIVATE lib${PROJECT_NAME} Boost::unit_test_framework)
+    target_link_libraries(${TEST_NAME}
+                          PRIVATE
+                          ${PROJECT_NAME}_standalone
+                          Boost::unit_test_framework)
 endfunction()
 
 add_test(procedural_probing_topology_objective_test 

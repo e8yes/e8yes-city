@@ -58,6 +58,7 @@ float EstimateAverageWaitTime(unsigned intersection_size) {
   switch (intersection_size) {
   case 0:
   case 1:
+    return 0;
   case 2:
     return kPedestrianCrossingTimeSeconds;
   case 3:
@@ -82,17 +83,28 @@ float EstimateLikelihoodToTravel(float time_cost) {
   return 0.5 * (1 + std::cos(omega * time_cost + phi));
 }
 
-float EvaluateObjectiveForSource(unsigned source_index,
-                                 std::vector<float> const &target_costs,
-                                 Topology const &topology) {
+CostMap CreateCostMapWithConnections(Topology const &topology) {
+  CostMap result(boost::num_vertices(topology));
+
+  auto [current, end] = boost::edges(topology);
+  for (; current != end; ++current) {
+    boost::add_edge(current->m_source, current->m_target, result);
+  }
+
+  return result;
+}
+
+float PopulationTrasnportedFromSource(unsigned source_index,
+                                      std::vector<float> const &target_costs,
+                                      Topology const &topology) {
   assert(target_costs.size() == boost::num_vertices(topology));
 
-  float total_benefits = 0.0f;
+  float proportion_transported = 0.0f;
   for (unsigned i = 0; i < target_costs.size(); ++i) {
-    total_benefits += EstimateLikelihoodToTravel(target_costs[i]) *
-                      topology[i].local_population;
+    proportion_transported +=
+        EstimateLikelihoodToTravel(target_costs[i]) * topology[i].importance;
   }
-  return topology[source_index].area_population * total_benefits;
+  return proportion_transported * topology[source_index].local_population;
 }
 
 } // namespace
@@ -115,13 +127,37 @@ float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map) {
                 EstimateAverageWaitTime(boost::degree(v, cost_map)));
 }
 
-float EvaluateSampledObjective(Topology const &topology,
-                               CostMap const &cost_map,
-                               SourceSamplerInterface const &source_sampler) {
+CostMap CreateCostMapForTopology(Topology const &topology) {
+  CostMap result = CreateCostMapWithConnections(topology);
+
+  auto [current, end] = boost::edges(result);
+  for (; current != end; ++current) {
+    assert(current->m_source >= 0 &&
+           current->m_source < boost::num_vertices(topology));
+    assert(current->m_target >= 0 &&
+           current->m_target < boost::num_vertices(topology));
+
+    auto [topology_edge, existence] =
+        boost::edge(current->m_source, current->m_target, topology);
+    assert(existence);
+
+    float static_time_cost =
+        boost::get(boost::edge_weight_t(), topology, topology_edge);
+    float wait_time_cost =
+        EstimateWaitTimeCost(current->m_source, current->m_target, result);
+    float time_cost = static_time_cost + wait_time_cost;
+    boost::put(boost::edge_weight_t(), result, *current, time_cost);
+  }
+
+  return result;
+}
+
+float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
+                        SourceSamplerInterface const &source_sampler) {
   assert(boost::num_vertices(topology) == boost::num_vertices(cost_map));
   assert(boost::num_vertices(cost_map) > 0);
 
-  float total_objective = 0.0f;
+  float transported = 0.0f;
   std::vector<float> min_time_costs(boost::num_vertices(cost_map));
   for (auto const &sample : source_sampler.SourceSamples()) {
     assert(sample.source_index < boost::num_vertices(cost_map));
@@ -130,12 +166,13 @@ float EvaluateSampledObjective(Topology const &topology,
     boost::dijkstra_shortest_paths(cost_map, source,
                                    boost::distance_map(&min_time_costs[0]));
 
-    total_objective += sample.frequency / sample.probability *
-                       EvaluateObjectiveForSource(sample.source_index,
-                                                  min_time_costs, topology);
+    float correction = 1.0 / sample.probability / source_sampler.SampleCount();
+    transported += sample.frequency * correction *
+                   PopulationTrasnportedFromSource(sample.source_index,
+                                                   min_time_costs, topology);
   }
 
-  return total_objective / source_sampler.SampleCount();
+  return transported / source_sampler.SampleCount();
 }
 
 } // namespace probing

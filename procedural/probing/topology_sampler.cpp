@@ -27,6 +27,9 @@ namespace procedural {
 namespace probing {
 namespace {
 
+using SourceIndex = unsigned;
+using SourceFrequency = unsigned;
+
 float const kCdfMaxError = 1e-3f;
 
 std::vector<float> VertexPmf(Topology const &topology) {
@@ -67,6 +70,18 @@ unsigned NextImportanceSample(std::vector<float> const &vertex_cdf,
   return it - vertex_cdf.begin();
 }
 
+template <typename NextSampleFn>
+std::unordered_map<SourceIndex, SourceFrequency>
+GenerateSamples(unsigned sample_count, NextSampleFn next_sample_fn) {
+  std::unordered_map<SourceIndex, SourceFrequency> sample_frequency;
+  sample_frequency.reserve(sample_count);
+  for (unsigned i = 0; i < sample_count; ++i) {
+    unsigned source_index = next_sample_fn();
+    ++sample_frequency[source_index];
+  }
+  return sample_frequency;
+}
+
 } // namespace
 
 SourceSamplerInterface::SourceSamplerInterface(unsigned sample_count)
@@ -90,12 +105,8 @@ SourceUniformSampler::SourceUniformSampler(
       random_engine_(random_engine), unif_(0, boost::num_vertices(topology)) {}
 
 void SourceUniformSampler::UpdateSamples() {
-  std::unordered_map<unsigned, unsigned> sample_frequency;
-  sample_frequency.reserve(sample_count_);
-  for (unsigned i = 0; i < sample_count_; ++i) {
-    unsigned source_index = unif_(*random_engine_);
-    ++sample_frequency[source_index];
-  }
+  std::unordered_map<unsigned, unsigned> sample_frequency = GenerateSamples(
+      sample_count_, [this] { return this->unif_(*this->random_engine_); });
 
   float uniform_pmf = 1.0 / sample_count_;
 
@@ -117,13 +128,11 @@ SourceImportanceSampler::SourceImportanceSampler(
       unif_(0, 1) {}
 
 void SourceImportanceSampler::UpdateSamples() {
-  std::unordered_map<unsigned, unsigned> sample_frequency;
-  sample_frequency.reserve(sample_count_);
-  for (unsigned i = 0; i < sample_count_; ++i) {
-    unsigned source_index =
-        NextImportanceSample(vertex_cdf_, unif_, random_engine_);
-    ++sample_frequency[source_index];
-  }
+  std::unordered_map<unsigned, unsigned> sample_frequency =
+      GenerateSamples(sample_count_, [this] {
+        return NextImportanceSample(this->vertex_cdf_, this->unif_,
+                                    this->random_engine_);
+      });
 
   samples_.clear();
   std::transform(
@@ -133,6 +142,19 @@ void SourceImportanceSampler::UpdateSamples() {
         auto const &[source_index, frequency] = sample_and_frequency;
         return Sample(source_index, frequency, this->vertex_pmf_[source_index]);
       });
+}
+
+SourcePopulationSampler::SourcePopulationSampler(Topology const &topology)
+    : SourceSamplerInterface(boost::num_vertices(topology)) {
+  float pmf = 1.0 / sample_count_;
+  for (unsigned i = 0; i < sample_count_; ++i) {
+    samples_.push_back(Sample(/*source_index=*/i, /*frequency=*/1, pmf));
+  }
+  assert(samples_.size() == boost::num_vertices(topology));
+}
+
+void SourcePopulationSampler::UpdateSamples() {
+  // Do nothing.
 }
 
 } // namespace probing

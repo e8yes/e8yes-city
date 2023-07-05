@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir --p bin
+mkdir -p bin
 pushd bin
 cmake ..
 make -j `nproc`

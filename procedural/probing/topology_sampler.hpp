@@ -24,36 +24,39 @@ namespace e8 {
 namespace procedural {
 namespace probing {
 
-//
+// A source sampler generates and stores source vertex samples of a topology.
 class SourceSamplerInterface {
 public:
-  //
+  // Samplers are expected to sample with replacement. Therefore, repeated
+  // samples can be represented by a single instance for performance purposes.
   struct Sample {
     Sample(unsigned source_index, unsigned frequency, float probability)
         : source_index(source_index), frequency(frequency),
           probability(probability) {}
 
-    //
+    // Index of the vertex to be treated as source.
     unsigned source_index;
 
-    //
+    // The number of times this source index appears in the sample set.
     unsigned frequency;
 
-    //
+    // The probability that this source index is sampled.
     float probability;
   };
 
-  //
+  // This constructor doesn't initialize the internal sample array. The array
+  // remains to be zero sized after construction.
   SourceSamplerInterface(unsigned sample_count);
   virtual ~SourceSamplerInterface() = default;
 
-  //
+  // Returns the current sample set.
   std::vector<Sample> const &SourceSamples() const;
 
-  //
+  // The number of samples in the current sample set. Note, it is NOT equivalent
+  // to the size of the sample array.
   unsigned SampleCount() const;
 
-  //
+  // Generates a new set of samples.
   virtual void UpdateSamples() = 0;
 
 protected:
@@ -61,14 +64,14 @@ protected:
   std::vector<Sample> samples_;
 };
 
-//
+// This sampler generates vertex samples uniformly over the topology.
 class SourceUniformSampler final : public SourceSamplerInterface {
 public:
   SourceUniformSampler(Topology const &topology, unsigned sample_count,
                        std::default_random_engine *random_engine);
   ~SourceUniformSampler() override = default;
 
-  //
+  // O(s), where s is the sample size
   void UpdateSamples() override;
 
 private:
@@ -77,14 +80,15 @@ private:
   std::uniform_int_distribution<unsigned> unif_;
 };
 
-//
+// This sampler generates vertex samples based on vertex importance. The
+// probability a vertex being sampled is it's importance.
 class SourceImportanceSampler final : public SourceSamplerInterface {
 public:
   SourceImportanceSampler(Topology const &topology, unsigned sample_count,
                           std::default_random_engine *random_engine);
   ~SourceImportanceSampler() override = default;
 
-  //
+  // O(s*log(n)), where s is the sample count, and n is the vertex count.
   void UpdateSamples() override;
 
 private:
@@ -94,17 +98,14 @@ private:
   std::uniform_real_distribution<float> unif_;
 };
 
-//
+// This sampler doesn't sample at all. It returns the entire vertex population.
 class SourcePopulationSampler final : public SourceSamplerInterface {
 public:
   SourcePopulationSampler(Topology const &topology);
   ~SourcePopulationSampler() override = default;
 
-  //
+  // It does nothing.
   void UpdateSamples() override;
-
-private:
-  std::vector<Sample> population_;
 };
 
 } // namespace probing
