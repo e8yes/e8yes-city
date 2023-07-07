@@ -35,7 +35,7 @@ float EstimateTravelTimeCost(unsigned u, unsigned v, Topology const &topology);
 // v. It changes along with any topological modification.
 float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map);
 
-//
+// Creates a cost map from the specified topology. The static edge cost of the topology needs not be initialized.
 CostMap CreateCostMapForTopology(Topology const &topology);
 
 // The full objective is computed as follow,
