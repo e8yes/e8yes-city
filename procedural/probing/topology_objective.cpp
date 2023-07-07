@@ -84,6 +84,7 @@ float EstimateLikelihoodToTravel(float time_cost) {
 }
 
 CostMap CreateCostMapWithConnections(Topology const &topology) {
+  assert(boost::num_vertices(topology) > 0);
   CostMap result(boost::num_vertices(topology));
 
   auto [current, end] = boost::edges(topology);
@@ -141,12 +142,12 @@ CostMap CreateCostMapForTopology(Topology const &topology) {
         boost::edge(current->m_source, current->m_target, topology);
     assert(existence);
 
-    float static_time_cost =
-        boost::get(boost::edge_weight_t(), topology, topology_edge);
+    float travel_time_cost =
+        EstimateTravelTimeCost(current->m_source, current->m_target, topology);
     float wait_time_cost =
         EstimateWaitTimeCost(current->m_source, current->m_target, result);
-    float time_cost = static_time_cost + wait_time_cost;
-    boost::put(boost::edge_weight_t(), result, *current, time_cost);
+    boost::put(boost::edge_weight_t(), result, *current,
+               travel_time_cost + wait_time_cost);
   }
 
   return result;

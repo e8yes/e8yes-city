@@ -49,7 +49,7 @@ CostMap CreateCostMapForTopology(Topology const &topology);
 //                      vertex t. This function is symmetric.
 // P_r(travel|time):    Estimates the proportion of the population is willing to
 //                      spend the specified amount of time in commute.
-// f_X(t):              The importance of vertex t. Note, \sum_{t \in V} = 1.
+// f_X(t):              The importance of vertex t. Note, \sum_{t \in V} f_X(t) = 1.
 // C(s):                The local population count at vertex s.
 //
 // The objective measures the average number of resident transported. The higher

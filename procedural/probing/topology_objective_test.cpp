@@ -104,6 +104,54 @@ BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
   BOOST_CHECK_CLOSE(10.0f, cost_02, 1);
 }
 
+BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
+  // Structure:
+  // 1
+  // | \
+  // 0---2-------3
+  unsigned const kVertexCount = 4;
+  float const kLocalPopulation = 126.0f;
+
+  Topology topology(kVertexCount);
+  topology[0] = VertexProperties(/*location=*/Eigen::Vector3f(0, 0, 0),
+                                 /*local_population=*/kLocalPopulation,
+                                 /*area_population=*/0,
+                                 /*importance=*/1.0f / kVertexCount);
+  topology[1] = VertexProperties(/*location=*/Eigen::Vector3f(0, 1000, 0),
+                                 /*local_population=*/kLocalPopulation,
+                                 /*area_population=*/0,
+                                 /*importance=*/1.0f / kVertexCount);
+  topology[2] = VertexProperties(/*location=*/Eigen::Vector3f(1000, 0, 0),
+                                 /*local_population=*/kLocalPopulation,
+                                 /*area_population=*/0,
+                                 /*importance=*/1.0f / kVertexCount);
+  topology[3] = VertexProperties(/*location=*/Eigen::Vector3f(3000, 0, 0),
+                                 /*local_population=*/kLocalPopulation,
+                                 /*area_population=*/0,
+                                 /*importance=*/1.0f / kVertexCount);
+
+  boost::add_edge(0, 1, topology);
+  boost::add_edge(0, 2, topology);
+  boost::add_edge(1, 2, topology);
+  boost::add_edge(2, 3, topology);
+
+  CostMap cost_map = CreateCostMapForTopology(topology);
+
+  float cost_01 = boost::get(boost::edge_weight_t(), cost_map,
+                             boost::edge(0, 1, cost_map).first);
+  float cost_02 = boost::get(boost::edge_weight_t(), cost_map,
+                             boost::edge(0, 2, cost_map).first);
+  float cost_12 = boost::get(boost::edge_weight_t(), cost_map,
+                             boost::edge(1, 2, cost_map).first);
+  float cost_23 = boost::get(boost::edge_weight_t(), cost_map,
+                             boost::edge(2, 3, cost_map).first);
+
+  BOOST_CHECK_CLOSE(52, cost_01, 1);
+  BOOST_CHECK_CLOSE(67, cost_02, 1);
+  BOOST_CHECK_CLOSE(85, cost_12, 1);
+  BOOST_CHECK_CLOSE(105, cost_23, 1);
+}
+
 BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
   Topology topology =
       CreateGridTopology(/*side=*/5, /*scale=*/1e3f, /*population=*/4e3);
@@ -111,7 +159,7 @@ BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
 
   SourcePopulationSampler sampler(topology);
   float objective = EvaluateObjective(topology, cost_map, sampler);
-  BOOST_CHECK_CLOSE(101, objective, 1);
+  BOOST_CHECK_CLOSE(106, objective, 1);
 }
 
 } // namespace
