@@ -23,7 +23,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 
 // Estimates the number of seconds needed to travel from u to v, or in the
 // opposite direction, based on the size of the local population at u and v.
@@ -35,7 +34,8 @@ float EstimateTravelTimeCost(unsigned u, unsigned v, Topology const &topology);
 // v. It changes along with any topological modification.
 float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map);
 
-// Creates a cost map from the specified topology. The static edge cost of the topology needs not be initialized.
+// Creates a cost map from the specified topology. The static edge cost of the
+// topology needs not be initialized.
 CostMap CreateCostMapForTopology(Topology const &topology);
 
 // The full objective is computed as follow,
@@ -49,8 +49,8 @@ CostMap CreateCostMapForTopology(Topology const &topology);
 //                      vertex t. This function is symmetric.
 // P_r(travel|time):    Estimates the proportion of the population is willing to
 //                      spend the specified amount of time in commute.
-// f_X(t):              The importance of vertex t. Note, \sum_{t \in V} f_X(t) = 1.
-// C(s):                The local population count at vertex s.
+// f_X(t):              The importance of vertex t. Note, \sum_{t \in V} f_X(t)
+// = 1. C(s):                The local population count at vertex s.
 //
 // The objective measures the average number of resident transported. The higher
 // the number gets, the better the topology is. The time complexity of the
@@ -63,6 +63,5 @@ CostMap CreateCostMapForTopology(Topology const &topology);
 float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
                         SourceSamplerInterface const &source_sampler);
 
-} // namespace probing
 } // namespace procedural
 } // namespace e8

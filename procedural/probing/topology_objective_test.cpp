@@ -23,7 +23,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 namespace {
 
 Topology CreateGridTopology(unsigned side, float scale, float population) {
@@ -163,6 +162,5 @@ BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
 }
 
 } // namespace
-} // namespace probing
 } // namespace procedural
 } // namespace e8

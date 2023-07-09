@@ -22,7 +22,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 
 // Defines the vertex properties (a variant of population probe) of a topology
 // map.
@@ -68,6 +67,5 @@ using CostMap = boost::adjacency_list<
     /*DirectedS=*/boost::undirectedS, /*VertexProperty=*/boost::no_property,
     /*EdgeProperty=*/EdgeCost>;
 
-} // namespace probing
 } // namespace procedural
 } // namespace e8

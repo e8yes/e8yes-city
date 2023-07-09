@@ -29,7 +29,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 namespace {
 
 float const kPedestrianCrossingTimeSeconds = 10.0f;
@@ -173,6 +172,5 @@ float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
   return transported / source_sampler.SampleCount();
 }
 
-} // namespace probing
 } // namespace procedural
 } // namespace e8
