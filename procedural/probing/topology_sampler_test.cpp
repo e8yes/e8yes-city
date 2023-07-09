@@ -23,7 +23,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 namespace {
 
 unsigned const kSourceCount = 100;
@@ -112,6 +111,5 @@ BOOST_AUTO_TEST_CASE(CheckPopulationSamplerReturnsThePopulation) {
 }
 
 } // namespace
-} // namespace probing
 } // namespace procedural
 } // namespace e8

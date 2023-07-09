@@ -22,7 +22,6 @@
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 
 // A source sampler generates and stores source vertex samples of a topology.
 class SourceSamplerInterface {
@@ -112,6 +111,5 @@ public:
   void UpdateSamples() override;
 };
 
-} // namespace probing
 } // namespace procedural
 } // namespace e8
