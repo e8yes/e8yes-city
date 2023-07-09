@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -g -fPIC -Ofast -flto=auto")
 set(LINK_FLAGS "-Ofast -flto=auto")
 
 set(SRCS
+    procedural/probing/topology_mutation.cpp
     procedural/probing/topology_objective.cpp
     procedural/probing/topology_sampler.cpp)
 set(LIBS
@@ -33,6 +34,8 @@ function(add_test TEST_NAME SOURCE_FILE_NAME)
                           Boost::unit_test_framework)
 endfunction()
 
+add_test(procedural_probing_topology_mutation_test 
+         procedural/probing/topology_mutation_test.cpp)
 add_test(procedural_probing_topology_objective_test 
          procedural/probing/topology_objective_test.cpp)
 add_test(procedural_probing_topology_sampler_test 
