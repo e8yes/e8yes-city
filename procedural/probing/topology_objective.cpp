@@ -133,10 +133,8 @@ CostMap CreateCostMapForTopology(Topology const &topology) {
 
   auto [current, end] = boost::edges(result);
   for (; current != end; ++current) {
-    assert(current->m_source >= 0 &&
-           current->m_source < boost::num_vertices(topology));
-    assert(current->m_target >= 0 &&
-           current->m_target < boost::num_vertices(topology));
+    assert(current->m_source < boost::num_vertices(topology));
+    assert(current->m_target < boost::num_vertices(topology));
 
     auto [topology_edge, existence] =
         boost::edge(current->m_source, current->m_target, topology);
@@ -167,8 +165,7 @@ float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
     boost::dijkstra_shortest_paths(cost_map, source,
                                    boost::distance_map(&min_time_costs[0]));
 
-    float correction = 1.0 / sample.probability / source_sampler.SampleCount();
-    transported += sample.frequency * correction *
+    transported += sample.frequency * sample.correction *
                    PopulationTrasnportedFromSource(sample.source_index,
                                                    min_time_costs, topology);
   }

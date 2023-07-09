@@ -84,8 +84,9 @@ GenerateSamples(unsigned sample_count, NextSampleFn next_sample_fn) {
 
 } // namespace
 
-SourceSamplerInterface::SourceSamplerInterface(unsigned sample_count)
-    : sample_count_(sample_count) {
+SourceSamplerInterface::SourceSamplerInterface(unsigned population_count,
+                                               unsigned sample_count)
+    : population_count_(population_count), sample_count_(sample_count) {
   assert(sample_count > 0);
   samples_.reserve(sample_count);
 }
@@ -97,35 +98,38 @@ SourceSamplerInterface::SourceSamples() const {
 
 unsigned SourceSamplerInterface::SampleCount() const { return sample_count_; }
 
+unsigned SourceSamplerInterface::PopulationCount() const {
+  return population_count_;
+}
+
 SourceUniformSampler::SourceUniformSampler(
     Topology const &topology, unsigned sample_count,
     std::default_random_engine *random_engine)
-    : SourceSamplerInterface(sample_count),
-      vertex_count_(boost::num_vertices(topology)),
-      random_engine_(random_engine), unif_(0, boost::num_vertices(topology)) {}
+    : SourceSamplerInterface(/*population_count=*/boost::num_vertices(topology),
+                             sample_count),
+      random_engine_(random_engine),
+      unif_(0, boost::num_vertices(topology) - 1) {}
 
 void SourceUniformSampler::UpdateSamples() {
   std::unordered_map<unsigned, unsigned> sample_frequency = GenerateSamples(
       sample_count_, [this] { return this->unif_(*this->random_engine_); });
 
-  float uniform_pmf = 1.0 / sample_count_;
-
   samples_.clear();
-  std::transform(
-      sample_frequency.begin(), sample_frequency.end(),
-      std::back_inserter(samples_),
-      [uniform_pmf](std::pair<unsigned, unsigned> const &sample_and_frequency) {
-        auto const &[source_index, frequency] = sample_and_frequency;
-        return Sample(source_index, frequency, uniform_pmf);
-      });
+  std::transform(sample_frequency.begin(), sample_frequency.end(),
+                 std::back_inserter(samples_),
+                 [](std::pair<unsigned, unsigned> const &sample_and_frequency) {
+                   auto const &[source_index, frequency] = sample_and_frequency;
+                   return Sample(source_index, frequency, /*correction=*/1.0f);
+                 });
 }
 
 SourceImportanceSampler::SourceImportanceSampler(
     Topology const &topology, unsigned sample_count,
     std::default_random_engine *random_engine)
-    : SourceSamplerInterface(sample_count), vertex_pmf_(VertexPmf(topology)),
-      vertex_cdf_(VertexCdf(topology)), random_engine_(random_engine),
-      unif_(0, 1) {}
+    : SourceSamplerInterface(/*population_count=*/boost::num_vertices(topology),
+                             sample_count),
+      vertex_pmf_(VertexPmf(topology)), vertex_cdf_(VertexCdf(topology)),
+      random_engine_(random_engine), unif_(0, 1) {}
 
 void SourceImportanceSampler::UpdateSamples() {
   std::unordered_map<unsigned, unsigned> sample_frequency =
@@ -140,15 +144,18 @@ void SourceImportanceSampler::UpdateSamples() {
       std::back_inserter(samples_),
       [this](std::pair<unsigned, unsigned> const &sample_and_frequency) {
         auto const &[source_index, frequency] = sample_and_frequency;
-        return Sample(source_index, frequency, this->vertex_pmf_[source_index]);
+        return Sample(source_index, frequency,
+                      1.0f / this->vertex_pmf_[source_index] /
+                          this->PopulationCount());
       });
 }
 
 SourcePopulationSampler::SourcePopulationSampler(Topology const &topology)
-    : SourceSamplerInterface(boost::num_vertices(topology)) {
-  float pmf = 1.0 / sample_count_;
+    : SourceSamplerInterface(/*population_count=*/boost::num_vertices(topology),
+                             /*sample_count=*/boost::num_vertices(topology)) {
   for (unsigned i = 0; i < sample_count_; ++i) {
-    samples_.push_back(Sample(/*source_index=*/i, /*frequency=*/1, pmf));
+    samples_.push_back(
+        Sample(/*source_index=*/i, /*frequency=*/1, /*correction=*/1.0));
   }
   assert(samples_.size() == boost::num_vertices(topology));
 }

@@ -30,9 +30,9 @@ public:
   // Samplers are expected to sample with replacement. Therefore, repeated
   // samples can be represented by a single instance for performance purposes.
   struct Sample {
-    Sample(unsigned source_index, unsigned frequency, float probability)
+    Sample(unsigned source_index, unsigned frequency, float correction)
         : source_index(source_index), frequency(frequency),
-          probability(probability) {}
+          correction(correction) {}
 
     // Index of the vertex to be treated as source.
     unsigned source_index;
@@ -40,13 +40,14 @@ public:
     // The number of times this source index appears in the sample set.
     unsigned frequency;
 
-    // The probability that this source index is sampled.
-    float probability;
+    // For the use of unbiased estimation. The correction factor is defined to
+    // be: \frac {1} {popluation\_size \cdot p_r(sample | source\_index)}.
+    float correction;
   };
 
   // This constructor doesn't initialize the internal sample array. The array
   // remains to be zero sized after construction.
-  SourceSamplerInterface(unsigned sample_count);
+  SourceSamplerInterface(unsigned population_count, unsigned sample_count);
   virtual ~SourceSamplerInterface() = default;
 
   // Returns the current sample set.
@@ -56,10 +57,14 @@ public:
   // to the size of the sample array.
   unsigned SampleCount() const;
 
+  // The number of source instances in the population set.
+  unsigned PopulationCount() const;
+
   // Generates a new set of samples.
   virtual void UpdateSamples() = 0;
 
 protected:
+  unsigned const population_count_;
   unsigned const sample_count_;
   std::vector<Sample> samples_;
 };
@@ -75,7 +80,6 @@ public:
   void UpdateSamples() override;
 
 private:
-  unsigned const vertex_count_;
   std::default_random_engine *const random_engine_;
   std::uniform_int_distribution<unsigned> unif_;
 };

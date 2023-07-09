@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
 
 BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
   // Structure:
-  // 1
-  // | \
+  // 1----
+  // |   |
   // 0---2-------3
   unsigned const kVertexCount = 4;
   float const kLocalPopulation = 126.0f;
