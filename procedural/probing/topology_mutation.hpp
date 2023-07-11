@@ -101,11 +101,11 @@ struct EdgeRecovery {
 EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
                                    CostMap const &cost_map);
 
-//
+// Actuates the mutation onto the specified cost map, assuming the mutation and edge recovery is generated based on the state of the cost map.
 void ApplyMutation(Mutation const &mutation, EdgeRecovery const &recovery,
                    Topology const &topology, CostMap *cost_map);
 
-//
+// Reverts the mutation previously applied to the cost map.
 void RevertMutation(Mutation const &mutation, EdgeRecovery const &recovery,
                     CostMap *cost_map);
 
