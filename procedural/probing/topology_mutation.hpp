@@ -17,16 +17,49 @@
 #pragma once
 
 #include "procedural/probing/topology_definition.hpp"
+#include <functional>
+#include <random>
 #include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace e8 {
 namespace procedural {
+namespace internal {
+
+// Used by the class EdgeSetState.
+struct PendingMutation {
+  std::unordered_set<unsigned> additions;
+  std::unordered_set<unsigned> deletions;
+};
+
+} // namespace internal
 
 //
-using Edge = std::tuple<unsigned, unsigned>;
+using EdgeSrcIndex = unsigned;
+using EdgeDstIndex = unsigned;
+using EdgeCostValue = float;
+
+//
+using Edge = std::tuple<EdgeSrcIndex, EdgeDstIndex>;
+
+//
+struct EdgeHash {
+  auto operator()(Edge const &edge) const -> size_t {
+    return std::hash<EdgeSrcIndex>{}(std::get<0>(edge)) ^
+           std::hash<EdgeDstIndex>{}(std::get<1>(edge));
+  }
+};
 
 //
 struct Mutation {
+  // Should be constructed by EdgeSetState::Mutate().
+  Mutation(unsigned num_additions, unsigned num_deletions) {
+    additions.reserve(num_additions);
+    deletions.reserve(num_deletions);
+  }
+
   //
   std::vector<Edge> additions;
 
@@ -37,11 +70,12 @@ struct Mutation {
 //
 class EdgeSetState {
 public:
-  EdgeSetState();
+  EdgeSetState(CostMap const &cost_map,
+               std::default_random_engine *random_engine);
   ~EdgeSetState() = default;
 
   //
-  Mutation const &Mutate(unsigned mutation_count);
+  Mutation Mutate(unsigned operation_count);
 
   //
   void Revert();
@@ -53,13 +87,30 @@ public:
 private:
   std::vector<Edge> edges_;
   unsigned separator_;
-  Mutation current_mutation_;
+  internal::PendingMutation current_mutation_;
+  std::default_random_engine *const random_engine_;
 };
 
 //
-class MutationRecovery {
-public:
+struct EdgeRecovery {
+  //
+  std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
+
+  //
+  std::vector<EdgeCostValue> deleted_edge_values;
 };
+
+//
+EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
+                                   CostMap const &cost_map);
+
+//
+void ApplyMutation(Mutation const &mutation, EdgeRecovery const &recovery,
+                   Topology const &topology, CostMap *cost_map);
+
+//
+void RevertMutation(Mutation const &mutation, EdgeRecovery const &recovery,
+                    CostMap *cost_map);
 
 } // namespace procedural
 } // namespace e8

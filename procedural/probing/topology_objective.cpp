@@ -127,6 +127,10 @@ float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map) {
                 EstimateAverageWaitTime(boost::degree(v, cost_map)));
 }
 
+float TotalTimeCost(float travel_time_cost, float wait_time_cost) {
+  return travel_time_cost + wait_time_cost;
+}
+
 CostMap CreateCostMapForTopology(Topology const &topology) {
   CostMap result = CreateCostMapWithConnections(topology);
 
@@ -144,7 +148,7 @@ CostMap CreateCostMapForTopology(Topology const &topology) {
     float wait_time_cost =
         EstimateWaitTimeCost(current->m_source, current->m_target, result);
     boost::put(boost::edge_weight_t(), result, *current,
-               travel_time_cost + wait_time_cost);
+               TotalTimeCost(travel_time_cost, wait_time_cost));
   }
 
   return result;

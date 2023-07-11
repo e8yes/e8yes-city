@@ -52,10 +52,18 @@ Topology CreateGridTopology(unsigned side, float scale, float population) {
       Topology::vertex_descriptor v3 =
           boost::vertex(x + (y - 1) * side, topology);
 
-      boost::add_edge(u, v0, topology);
-      boost::add_edge(u, v1, topology);
-      boost::add_edge(u, v2, topology);
-      boost::add_edge(u, v3, topology);
+      if (!boost::edge(u, v0, topology).second) {
+        boost::add_edge(u, v0, topology);
+      }
+      if (!boost::edge(u, v1, topology).second) {
+        boost::add_edge(u, v1, topology);
+      }
+      if (!boost::edge(u, v2, topology).second) {
+        boost::add_edge(u, v2, topology);
+      }
+      if (!boost::edge(u, v3, topology).second) {
+        boost::add_edge(u, v3, topology);
+      }
     }
   }
 
@@ -74,6 +82,8 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsSparse_ThenCheckTravelTime) {
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(25.706940874f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
+  BOOST_CHECK_EQUAL(EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology),
+                    EstimateTravelTimeCost(/*u=*/1, /*v=*/0, topology));
 }
 
 BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
@@ -88,6 +98,8 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(120.048019208f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
+  BOOST_CHECK_EQUAL(EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology),
+                    EstimateTravelTimeCost(/*u=*/1, /*v=*/0, topology));
 }
 
 BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
@@ -101,6 +113,11 @@ BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
 
   BOOST_CHECK_CLOSE(5.0f, cost_01, 1);
   BOOST_CHECK_CLOSE(10.0f, cost_02, 1);
+
+  BOOST_CHECK_EQUAL(EstimateWaitTimeCost(0, 1, cost_map),
+                    EstimateWaitTimeCost(1, 0, cost_map));
+  BOOST_CHECK_EQUAL(EstimateWaitTimeCost(0, 2, cost_map),
+                    EstimateWaitTimeCost(2, 0, cost_map));
 }
 
 BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
@@ -130,9 +147,13 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
                                  /*importance=*/1.0f / kVertexCount);
 
   boost::add_edge(0, 1, topology);
+  boost::add_edge(1, 0, topology);
   boost::add_edge(0, 2, topology);
+  boost::add_edge(2, 0, topology);
   boost::add_edge(1, 2, topology);
+  boost::add_edge(2, 1, topology);
   boost::add_edge(2, 3, topology);
+  boost::add_edge(3, 2, topology);
 
   CostMap cost_map = CreateCostMapForTopology(topology);
 
