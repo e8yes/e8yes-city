@@ -1,4 +1,4 @@
-d// e8City
+// e8City
 // Copyright (C) 2023 e8yes
 //
 // This program is free software: you can redistribute it and/or modify
@@ -97,7 +97,7 @@ struct EdgeRecovery {
   std::vector<EdgeCostValue> deleted_edge_values;
 };
 
-// Creates an edge recovery for the mutation. Please see the above EdgeRecovery struct for what states are saved.
+// Creates an edge recovery for the mutation. It assumes the mutation is generated based on the state of the specified cost map. Please see the above EdgeRecovery struct for what states are saved.
 EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
                                    CostMap const &cost_map);
 
