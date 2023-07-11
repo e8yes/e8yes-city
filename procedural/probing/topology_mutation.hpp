@@ -26,17 +26,9 @@
 
 namespace e8 {
 namespace procedural {
-namespace internal {
 
-// Used by the class EdgeSetState.
-struct PendingMutation {
-  std::unordered_set<unsigned> additions;
-  std::unordered_set<unsigned> deletions;
-};
-
-} // namespace internal
-
-// Since the mutation operations apply solely on the edge set, it's useful to define the components that define an edge.
+// Since the mutation operations apply solely on the edge set, it's useful to
+// define the components that define an edge.
 using EdgeSrcIndex = unsigned;
 using EdgeDstIndex = unsigned;
 using EdgeCostValue = float;
@@ -49,7 +41,8 @@ struct EdgeHash {
   }
 };
 
-// A mutation is the set of edges to be added to/deleted from the current edge set.
+// A mutation is the set of edges to be added to/deleted from the current edge
+// set.
 struct Mutation {
   // Should be constructed by EdgeSetState::Mutate().
   Mutation(unsigned num_additions, unsigned num_deletions) {
@@ -64,44 +57,25 @@ struct Mutation {
   std::vector<Edge> deletions;
 };
 
-// Keeps track of the state of each edge in the edge set. The state of an edge can either be active or deleted.
-class EdgeSetState {
-public:
-  EdgeSetState(CostMap const &cost_map,
-               std::default_random_engine *random_engine);
-  ~EdgeSetState() = default;
-
-  // Obtains a mutation by performing random operations. A random operation can either turn a deleted edge into an active one or vice versa. It's possible that it eventually yields an empty mutation through the process. The mutation is applied to the actual edge states.
-  Mutation Mutate(unsigned operation_count);
-
-  // Reverts the application of the last mutation performed by EdgeSetState::Mutate. Note, it can't revert more than 1 mutation. Namely, subsequent calls to this function does nothing.
-  void Revert();
-
-  // For testing purposes.
-  std::vector<Edge> ActiveEdges() const;
-  std::vector<Edge> DeletedEdges() const;
-
-private:
-  std::vector<Edge> edges_;
-  unsigned separator_;
-  internal::PendingMutation current_mutation_;
-  std::default_random_engine *const random_engine_;
-};
-
-// Saves the current edge state, so the later mutation made to the edge set can be reverted.
+// Saves the current edge state, so the later mutation made to the edge set can
+// be reverted.
 struct EdgeRecovery {
   // Edges whose cost value will be affected by the mutation.
   std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
 
-  // Edges which will be deleted by the mutation. The order of the values corresponds to that of Mutation::deletions.
+  // Edges which will be deleted by the mutation. The order of the values
+  // corresponds to that of Mutation::deletions.
   std::vector<EdgeCostValue> deleted_edge_values;
 };
 
-// Creates an edge recovery for the mutation. It assumes the mutation is generated based on the state of the specified cost map. Please see the above EdgeRecovery struct for what states are saved.
+// Creates an edge recovery for the mutation. It assumes the mutation is
+// generated based on the state of the specified cost map. Please see the above
+// EdgeRecovery struct for what states are saved.
 EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
                                    CostMap const &cost_map);
 
-// Actuates the mutation onto the specified cost map, assuming the mutation and edge recovery is generated based on the state of the cost map.
+// Actuates the mutation onto the specified cost map, assuming the mutation and
+// edge recovery is generated based on the state of the cost map.
 void ApplyMutation(Mutation const &mutation, EdgeRecovery const &recovery,
                    Topology const &topology, CostMap *cost_map);
 

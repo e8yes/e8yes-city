@@ -52,18 +52,10 @@ Topology CreateGridTopology(unsigned side, float scale, float population) {
       Topology::vertex_descriptor v3 =
           boost::vertex(x + (y - 1) * side, topology);
 
-      if (!boost::edge(u, v0, topology).second) {
-        boost::add_edge(u, v0, topology);
-      }
-      if (!boost::edge(u, v1, topology).second) {
-        boost::add_edge(u, v1, topology);
-      }
-      if (!boost::edge(u, v2, topology).second) {
-        boost::add_edge(u, v2, topology);
-      }
-      if (!boost::edge(u, v3, topology).second) {
-        boost::add_edge(u, v3, topology);
-      }
+      boost::add_edge(u, v0, topology);
+      boost::add_edge(u, v1, topology);
+      boost::add_edge(u, v2, topology);
+      boost::add_edge(u, v3, topology);
     }
   }
 
@@ -147,13 +139,9 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
                                  /*importance=*/1.0f / kVertexCount);
 
   boost::add_edge(0, 1, topology);
-  boost::add_edge(1, 0, topology);
   boost::add_edge(0, 2, topology);
-  boost::add_edge(2, 0, topology);
   boost::add_edge(1, 2, topology);
-  boost::add_edge(2, 1, topology);
   boost::add_edge(2, 3, topology);
-  boost::add_edge(3, 2, topology);
 
   CostMap cost_map = CreateCostMapForTopology(topology);
 
