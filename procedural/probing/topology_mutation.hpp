@@ -74,7 +74,7 @@ public:
   // Obtains a mutation by performing random operations. A random operation can either turn a deleted edge into an active one or vice versa. It's possible that it eventually yields an empty mutation through the process. The mutation is applied to the actual edge states.
   Mutation Mutate(unsigned operation_count);
 
-  // Reverts the application of the last mutation performed by EdgeSetState::Mutate.
+  // Reverts the application of the last mutation performed by EdgeSetState::Mutate. Note, it can't revert more than 1 mutation. Namely, subsequent calls to this function does nothing.
   void Revert();
 
   // For testing purposes.
@@ -88,16 +88,16 @@ private:
   std::default_random_engine *const random_engine_;
 };
 
-//
+// Saves the current edge state, so the later mutation made to the edge set can be reverted.
 struct EdgeRecovery {
-  //
+  // Edges whose cost value will be affected by the mutation.
   std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
 
-  //
+  // Edges which will be deleted by the mutation. The order of the values corresponds to that of Mutation::deletions.
   std::vector<EdgeCostValue> deleted_edge_values;
 };
 
-//
+// Creates an edge recovery for the mutation. Please see the above EdgeRecovery struct for what states are saved.
 EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
                                    CostMap const &cost_map);
 
