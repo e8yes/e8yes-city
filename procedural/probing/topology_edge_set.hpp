@@ -52,7 +52,7 @@ public:
   Mutation Mutate(unsigned operation_count);
 
   // Reverts the application of the last mutation performed by
-  // EdgeSetState::Mutate. Note, it can't revert more than 1 mutation. Namely,
+  // EdgeSetState::Mutate(). Note, it can't revert more than 1 mutation. Namely,
   // subsequent calls to this function does nothing.
   void Revert();
 

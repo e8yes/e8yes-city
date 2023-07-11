@@ -50,6 +50,9 @@ struct Mutation {
     deletions.reserve(num_deletions);
   }
 
+  Mutation(Mutation &) = default;
+  Mutation(Mutation &&) = default;
+
   // The set of edges to be added.
   std::vector<Edge> additions;
 
@@ -57,9 +60,16 @@ struct Mutation {
   std::vector<Edge> deletions;
 };
 
-// Saves the current edge state, so the later mutation made to the edge set can
-// be reverted.
-struct EdgeRecovery {
+// Extends the mutation to support the saving of the current edge costs, so the
+// later mutation made to the edge set can be reverted.
+struct RevertibleMutation {
+  // It assumes the mutation is generated based on the state of the specified
+  // cost map.
+  RevertibleMutation(Mutation &&other, CostMap const &cost_map);
+
+  // The mutation to prepare recovery for.
+  Mutation mutation;
+
   // Edges whose cost value will be affected by the mutation.
   std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
 
@@ -68,20 +78,13 @@ struct EdgeRecovery {
   std::vector<EdgeCostValue> deleted_edge_values;
 };
 
-// Creates an edge recovery for the mutation. It assumes the mutation is
-// generated based on the state of the specified cost map. Please see the above
-// EdgeRecovery struct for what states are saved.
-EdgeRecovery CreateEdgeRecoveryFor(Mutation const &mutation,
-                                   CostMap const &cost_map);
-
-// Actuates the mutation onto the specified cost map, assuming the mutation and
-// edge recovery is generated based on the state of the cost map.
-void ApplyMutation(Mutation const &mutation, EdgeRecovery const &recovery,
-                   Topology const &topology, CostMap *cost_map);
+// Actuates the mutation onto the specified cost map, assuming the mutation is
+// generated based on the state of the cost map.
+void ApplyMutation(RevertibleMutation const &mutation, Topology const &topology,
+                   CostMap *cost_map);
 
 // Reverts the mutation previously applied to the cost map.
-void RevertMutation(Mutation const &mutation, EdgeRecovery const &recovery,
-                    CostMap *cost_map);
+void RevertMutation(RevertibleMutation const &mutation, CostMap *cost_map);
 
 } // namespace procedural
 } // namespace e8
