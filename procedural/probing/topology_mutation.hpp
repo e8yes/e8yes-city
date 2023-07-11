@@ -1,4 +1,4 @@
-// e8City
+d// e8City
 // Copyright (C) 2023 e8yes
 //
 // This program is free software: you can redistribute it and/or modify
@@ -36,15 +36,12 @@ struct PendingMutation {
 
 } // namespace internal
 
-//
+// Since the mutation operations apply solely on the edge set, it's useful to define the components that define an edge.
 using EdgeSrcIndex = unsigned;
 using EdgeDstIndex = unsigned;
 using EdgeCostValue = float;
-
-//
 using Edge = std::tuple<EdgeSrcIndex, EdgeDstIndex>;
 
-//
 struct EdgeHash {
   auto operator()(Edge const &edge) const -> size_t {
     return std::hash<EdgeSrcIndex>{}(std::get<0>(edge)) ^
@@ -52,7 +49,7 @@ struct EdgeHash {
   }
 };
 
-//
+// A mutation is the set of edges to be added to/deleted from the current edge set.
 struct Mutation {
   // Should be constructed by EdgeSetState::Mutate().
   Mutation(unsigned num_additions, unsigned num_deletions) {
@@ -60,27 +57,27 @@ struct Mutation {
     deletions.reserve(num_deletions);
   }
 
-  //
+  // The set of edges to be added.
   std::vector<Edge> additions;
 
-  //
+  // The set of edges to be deleted.
   std::vector<Edge> deletions;
 };
 
-//
+// Keeps track of the state of each edge in the edge set. The state of an edge can either be active or deleted.
 class EdgeSetState {
 public:
   EdgeSetState(CostMap const &cost_map,
                std::default_random_engine *random_engine);
   ~EdgeSetState() = default;
 
-  //
+  // Obtains a mutation by performing random operations. A random operation can either turn a deleted edge into an active one or vice versa. It's possible that it eventually yields an empty mutation through the process. The mutation is applied to the actual edge states.
   Mutation Mutate(unsigned operation_count);
 
-  //
+  // Reverts the application of the last mutation performed by EdgeSetState::Mutate.
   void Revert();
 
-  //
+  // For testing purposes.
   std::vector<Edge> ActiveEdges() const;
   std::vector<Edge> DeletedEdges() const;
 
