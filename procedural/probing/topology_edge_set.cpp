@@ -19,6 +19,7 @@
 #include "procedural/probing/topology_mutation.hpp"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <random>
 #include <unordered_set>
 #include <vector>
@@ -51,17 +52,23 @@ void DeleteEdge(unsigned edge_index, internal::PendingMutation *mutation) {
 
 void AddEdge(unsigned edge_to_add, std::vector<Edge> *edges,
              unsigned *separator) {
-  assert(edge_to_add < *separator);
-  std::swap(edges->at(edge_to_add), edges->at(*separator - 1));
-  --(*separator);
+  std::cout << "AddEdge(): " << edge_to_add << "," << *separator << std::endl;
+  assert(edge_to_add >= *separator);
+  assert(*separator < edges->size());
+
+  std::swap(edges->at(edge_to_add), edges->at(*separator));
+  ++(*separator);
 }
 
 void DeleteEdge(unsigned edge_to_delete, std::vector<Edge> *edges,
                 unsigned *separator) {
-  assert(edge_to_delete >= *separator);
+  std::cout << "DeleteEdge(): " << edge_to_delete << "," << *separator
+            << std::endl;
+  assert(edge_to_delete < *separator);
   assert(*separator <= edges->size());
-  std::swap(edges->at(edge_to_delete), edges->at(*separator));
-  ++(*separator);
+
+  std::swap(edges->at(edge_to_delete), edges->at(*separator - 1));
+  --(*separator);
 }
 
 void ClearInternalMutation(internal::PendingMutation *mutation) {
