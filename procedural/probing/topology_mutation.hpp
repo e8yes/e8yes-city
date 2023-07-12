@@ -54,10 +54,10 @@ struct Mutation {
   Mutation(Mutation &&) = default;
 
   // The set of edges to be added.
-  std::vector<Edge> additions;
+  std::unordered_set<Edge> additions;
 
   // The set of edges to be deleted.
-  std::vector<Edge> deletions;
+  std:: unordered_set<Edge> deletions;
 };
 
 // Extends the mutation to support the saving of the current edge costs, so the
@@ -73,9 +73,8 @@ struct RevertibleMutation {
   // Edges whose cost value will be affected by the mutation.
   std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
 
-  // Edges which will be deleted by the mutation. The order of the values
-  // corresponds to that of Mutation::deletions.
-  std::vector<EdgeCostValue> deleted_edge_values;
+  // Edges which will be deleted by the mutation.
+  std::unordered_map<Edge, EdgeCostValue, EdgeHash> deleted_edge_values;
 };
 
 // Actuates the mutation onto the specified cost map, assuming the mutation is
