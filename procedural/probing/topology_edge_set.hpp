@@ -21,15 +21,16 @@
 #include <random>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 
 namespace e8 {
 namespace procedural {
 namespace internal {
 
 // Used by the class EdgeSetState.
-struct PendingMutation {
-  std::unordered_set<unsigned> additions;
-  std::unordered_set<unsigned> deletions;
+struct MutationLog {
+  std:: vector<std::pair<unsigned, unsigned>> swaps;
+  unsigned separator_before;
 };
 
 } // namespace internal
@@ -63,7 +64,7 @@ public:
 private:
   std::vector<Edge> edges_;
   unsigned separator_;
-  internal::PendingMutation current_mutation_;
+  internal::MutationLog log_;
   std::default_random_engine *const random_engine_;
 };
 
