@@ -31,12 +31,18 @@ namespace procedural {
 namespace {
 
 Edge Reverse(Edge const &edge) {
-  return std::make_tuple(std::get<1>(edge), std::get<0>(edge));
+  return Edge(std::get<1>(edge), std::get<0>(edge));
 }
 
 void AddAffectedEdge(
     Edge const &affected_edge, CostMap const &cost_map,
+    std::unordered_set<Edge, EdgeHash> const &exclusions,
     std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
+  if (exclusions.find(affected_edge) != exclusions.end() ||
+      exclusions.find(Reverse(affected_edge)) != exclusions.end()) {
+    // The edge should be excluded.
+    return;
+  }
   if (affected_edges->find(affected_edge) != affected_edges->end() ||
       affected_edges->find(Reverse(affected_edge)) != affected_edges->end()) {
     // The edge has already been saved.
@@ -52,20 +58,25 @@ void AddAffectedEdge(
 
 void EdgesAffectedBy(
     unsigned vertex, CostMap const &cost_map,
+    std::unordered_set<Edge, EdgeHash> const &exclusions,
     std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
   auto [current, end] = boost::adjacent_vertices(vertex, cost_map);
   for (; current != end; ++current) {
-    Edge affected_edge = std::make_tuple(vertex, *current);
-    AddAffectedEdge(affected_edge, cost_map, affected_edges);
+    Edge affected_edge(vertex, *current);
+    AddAffectedEdge(affected_edge, cost_map, exclusions, affected_edges);
   }
 }
 
 void EdgesAffectedBy(
-    std::vector<Edge> const &mutated_edges, CostMap const &cost_map,
+    std::unordered_set<Edge, EdgeHash> const &mutated_edges,
+    std::unordered_set<Edge, EdgeHash> const &exclusions,
+    CostMap const &cost_map,
     std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
   for (auto const &mutated_edge : mutated_edges) {
-    EdgesAffectedBy(std::get<0>(mutated_edge), cost_map, affected_edges);
-    EdgesAffectedBy(std::get<1>(mutated_edge), cost_map, affected_edges);
+    EdgesAffectedBy(std::get<0>(mutated_edge), cost_map, exclusions,
+                    affected_edges);
+    EdgesAffectedBy(std::get<1>(mutated_edge), cost_map, exclusions,
+                    affected_edges);
   }
 }
 
@@ -88,24 +99,45 @@ void UpdateCostFor(Edge const &edge, Topology const &topology,
 
 } // namespace
 
+Mutation::Mutation(unsigned num_additions, unsigned num_deletions) {
+  additions.reserve(num_additions);
+  deletions.reserve(num_deletions);
+}
+
+void Mutation::PushAddition(Edge const &edge) {
+  if (deletions.erase(edge) > 0) {
+    return;
+  }
+  additions.insert(edge);
+}
+
+void Mutation::PushDeletion(Edge const &edge) {
+  if (additions.erase(edge) > 0) {
+    return;
+  }
+  deletions.insert(edge);
+}
+
 RevertibleMutation::RevertibleMutation(Mutation &&other,
                                        CostMap const &cost_map)
     : mutation(std::move(other)) {
   // Saves the cost value for edges that are going to be deleted.
-  deleted_edge_values.reserve(mutation.deletions.size());
+  deleted_edges.reserve(mutation.deletions.size());
   for (auto const &edge : mutation.deletions) {
     auto [edge_desc, existence] =
         boost::edge(std::get<0>(edge), std::get<1>(edge), cost_map);
     assert(existence);
 
     float cost_value = boost::get(boost::edge_weight_t(), cost_map, edge_desc);
-    deleted_edge_values.push_back(cost_value);
+    deleted_edges[edge] = cost_value;
   }
 
   // Saves the cost value for edges that are going to be affected by the
   // edge additions and deletions.
-  EdgesAffectedBy(mutation.additions, cost_map, &affected_edges);
-  EdgesAffectedBy(mutation.deletions, cost_map, &affected_edges);
+  EdgesAffectedBy(mutation.additions, /*exclusion=*/mutation.deletions,
+                  cost_map, &affected_edges);
+  EdgesAffectedBy(mutation.deletions, /*exclusion=*/mutation.deletions,
+                  cost_map, &affected_edges);
 }
 
 void ApplyMutation(RevertibleMutation const &revertible,
@@ -137,10 +169,8 @@ void RevertMutation(RevertibleMutation const &revertible, CostMap *cost_map) {
   }
 
   // Recovers deleted edges.
-  for (unsigned i = 0; i < revertible.mutation.deletions.size(); ++i) {
-    boost::add_edge(std::get<0>(revertible.mutation.deletions[i]),
-                    std::get<1>(revertible.mutation.deletions[i]),
-                    revertible.deleted_edge_values[i], *cost_map);
+  for (auto const &[edge, edge_cost] : revertible.deleted_edges) {
+    boost::add_edge(std::get<0>(edge), std::get<1>(edge), edge_cost, *cost_map);
   }
 
   // Recovers affected edges.

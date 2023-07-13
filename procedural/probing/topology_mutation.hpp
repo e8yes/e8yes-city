@@ -44,20 +44,23 @@ struct EdgeHash {
 // A mutation is the set of edges to be added to/deleted from the current edge
 // set.
 struct Mutation {
-  // Should be constructed by EdgeSetState::Mutate().
-  Mutation(unsigned num_additions, unsigned num_deletions) {
-    additions.reserve(num_additions);
-    deletions.reserve(num_deletions);
-  }
-
+  Mutation(unsigned num_additions, unsigned num_deletions);
   Mutation(Mutation &) = default;
   Mutation(Mutation &&) = default;
 
+  // Adds an edge to the pending addition set if it has not been planned for
+  // deletion. Otherwise, it removes the edge from the pending deletion set.
+  void PushAddition(Edge const &edge);
+
+  // Adds an edge to the pending deletion set if it has not been planned for
+  // addition. Otherwise, it removes the edge from the pending addition set.
+  void PushDeletion(Edge const &edge);
+
   // The set of edges to be added.
-  std::unordered_set<Edge> additions;
+  std::unordered_set<Edge, EdgeHash> additions;
 
   // The set of edges to be deleted.
-  std:: unordered_set<Edge> deletions;
+  std::unordered_set<Edge, EdgeHash> deletions;
 };
 
 // Extends the mutation to support the saving of the current edge costs, so the
@@ -74,16 +77,16 @@ struct RevertibleMutation {
   std::unordered_map<Edge, EdgeCostValue, EdgeHash> affected_edges;
 
   // Edges which will be deleted by the mutation.
-  std::unordered_map<Edge, EdgeCostValue, EdgeHash> deleted_edge_values;
+  std::unordered_map<Edge, EdgeCostValue, EdgeHash> deleted_edges;
 };
 
 // Actuates the mutation onto the specified cost map, assuming the mutation is
 // generated based on the state of the cost map.
-void ApplyMutation(RevertibleMutation const &mutation, Topology const &topology,
-                   CostMap *cost_map);
+void ApplyMutation(RevertibleMutation const &revertible,
+                   Topology const &topology, CostMap *cost_map);
 
 // Reverts the mutation previously applied to the cost map.
-void RevertMutation(RevertibleMutation const &mutation, CostMap *cost_map);
+void RevertMutation(RevertibleMutation const &revertible, CostMap *cost_map);
 
 } // namespace procedural
 } // namespace e8

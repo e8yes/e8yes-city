@@ -20,8 +20,8 @@
 #include "procedural/probing/topology_mutation.hpp"
 #include <random>
 #include <unordered_set>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace e8 {
 namespace procedural {
@@ -29,7 +29,10 @@ namespace internal {
 
 // Used by the class EdgeSetState.
 struct MutationLog {
-  std:: vector<std::pair<unsigned, unsigned>> swaps;
+  MutationLog();
+  MutationLog(unsigned pending_operation_count, unsigned current_separator);
+
+  std::vector<std::pair<unsigned, unsigned>> swaps;
   unsigned separator_before;
 };
 

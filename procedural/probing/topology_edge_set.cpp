@@ -19,7 +19,7 @@
 #include "procedural/probing/topology_mutation.hpp"
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+#include <limits>
 #include <random>
 #include <unordered_set>
 #include <vector>
@@ -30,63 +30,24 @@ namespace {
 
 float const kProbAdd = 0.5f;
 
-void AddEdge(unsigned edge_index, internal::PendingMutation *mutation) {
-  auto deletion_it = mutation->deletions.find(edge_index);
-  if (deletion_it != mutation->deletions.end()) {
-    mutation->deletions.erase(deletion_it);
-    return;
-  }
-
-  mutation->additions.insert(edge_index);
-}
-
-void DeleteEdge(unsigned edge_index, internal::PendingMutation *mutation) {
-  auto addition_it = mutation->additions.find(edge_index);
-  if (addition_it != mutation->additions.end()) {
-    mutation->additions.erase(addition_it);
-    return;
-  }
-
-  mutation->deletions.insert(edge_index);
-}
-
 void AddEdge(unsigned edge_to_add, std::vector<Edge> *edges,
-             unsigned *separator) {
-  std::cout << "AddEdge(): " << edge_to_add << "," << *separator << std::endl;
+             unsigned *separator, internal::MutationLog *log) {
   assert(edge_to_add >= *separator);
   assert(*separator < edges->size());
 
   std::swap(edges->at(edge_to_add), edges->at(*separator));
+  log->swaps.push_back(std::make_pair(edge_to_add, *separator));
   ++(*separator);
 }
 
 void DeleteEdge(unsigned edge_to_delete, std::vector<Edge> *edges,
-                unsigned *separator) {
-  std::cout << "DeleteEdge(): " << edge_to_delete << "," << *separator
-            << std::endl;
+                unsigned *separator, internal::MutationLog *log) {
   assert(edge_to_delete < *separator);
   assert(*separator <= edges->size());
 
   std::swap(edges->at(edge_to_delete), edges->at(*separator - 1));
+  log->swaps.push_back(std::make_pair(edge_to_delete, *separator - 1));
   --(*separator);
-}
-
-void ClearInternalMutation(internal::PendingMutation *mutation) {
-  mutation->additions.clear();
-  mutation->deletions.clear();
-}
-
-Mutation ToExternalMutation(internal::PendingMutation const &current_mutation,
-                            std::vector<Edge> const &edges) {
-  Mutation result(current_mutation.additions.size(),
-                  current_mutation.deletions.size());
-  for (auto const edge_index : current_mutation.additions) {
-    result.additions.push_back(edges[edge_index]);
-  }
-  for (auto const edge_index : current_mutation.deletions) {
-    result.deletions.push_back(edges[edge_index]);
-  }
-  return result;
 }
 
 bool ChooseAddEdgeOperation(std::vector<Edge> const &edges, unsigned separator,
@@ -123,6 +84,19 @@ unsigned SampleDeletedEdge(std::vector<Edge> const &edges, unsigned separator,
 
 } // namespace
 
+namespace internal {
+
+MutationLog::MutationLog()
+    : separator_before(std::numeric_limits<unsigned>::max()) {}
+
+MutationLog::MutationLog(unsigned pending_operation_count,
+                         unsigned current_separator)
+    : separator_before(current_separator) {
+  swaps.reserve(pending_operation_count);
+}
+
+} // namespace internal
+
 EdgeSetState::EdgeSetState(std::default_random_engine *random_engine)
     : separator_(0), random_engine_(random_engine) {}
 
@@ -133,34 +107,39 @@ void EdgeSetState::Add(Edge const &edge) {
 }
 
 Mutation EdgeSetState::Mutate(unsigned operation_count) {
-  ClearInternalMutation(&current_mutation_);
+  Mutation result(/*num_additions=*/operation_count,
+                  /*num_deletions=*/operation_count);
 
+  log_ = internal::MutationLog(operation_count, separator_);
   for (unsigned i = 0; i < operation_count; ++i) {
     if (ChooseAddEdgeOperation(edges_, separator_, random_engine_)) {
       unsigned edge_to_add =
           SampleDeletedEdge(edges_, separator_, random_engine_);
-      AddEdge(edge_to_add, &current_mutation_);
-      AddEdge(edge_to_add, &edges_, &separator_);
+      result.PushAddition(edges_[edge_to_add]);
+      AddEdge(edge_to_add, &edges_, &separator_, &log_);
     } else {
       unsigned edge_to_delete =
           SampleActiveEdge(edges_, separator_, random_engine_);
-      DeleteEdge(edge_to_delete, &current_mutation_);
-      DeleteEdge(edge_to_delete, &edges_, &separator_);
+      result.PushDeletion(edges_[edge_to_delete]);
+      DeleteEdge(edge_to_delete, &edges_, &separator_, &log_);
     }
   }
 
-  return ToExternalMutation(current_mutation_, edges_);
+  return result;
 }
 
 void EdgeSetState::Revert() {
-  for (auto const edge_index : current_mutation_.additions) {
-    DeleteEdge(edge_index, &edges_, &separator_);
-  }
-  for (auto const edge_index : current_mutation_.deletions) {
-    AddEdge(edge_index, &edges_, &separator_);
+  if (log_.swaps.empty()) {
+    return;
   }
 
-  ClearInternalMutation(&current_mutation_);
+  while (!log_.swaps.empty()) {
+    auto const &[edge_index0, edge_index1] = log_.swaps.back();
+    std::swap(edges_[edge_index0], edges_[edge_index1]);
+    log_.swaps.pop_back();
+  }
+
+  separator_ = log_.separator_before;
 }
 
 std::vector<Edge> EdgeSetState::ActiveEdges() const {
@@ -180,7 +159,7 @@ EdgeSetState CreateEdgeSetStateFor(CostMap const &cost_map,
   EdgeSetState edge_set(random_engine);
   auto [current, end] = boost::edges(cost_map);
   for (; current != end; ++current) {
-    edge_set.Add(std::make_tuple(current->m_source, current->m_target));
+    edge_set.Add(Edge(current->m_source, current->m_target));
   }
   return edge_set;
 }

@@ -15,18 +15,40 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MAIN
-
-#define BOOST_TEST_MAIN
 #include "procedural/probing/topology_definition.hpp"
 #include "procedural/probing/topology_edge_set.hpp"
 #include "procedural/probing/topology_mutation.hpp"
 #include "procedural/probing/topology_objective.hpp"
+#include <boost/graph/adjacency_list.hpp>
 #include <boost/test/unit_test.hpp>
 #include <random>
+#include <unordered_set>
+#include <vector>
 
 namespace e8 {
 namespace procedural {
 namespace {
+
+bool ContainsAllEdges(std::vector<Edge> const &edges, CostMap const &cost_map) {
+  std::unordered_set<Edge, EdgeHash> edge_set(edges.size());
+  for (auto const &edge : edges) {
+    edge_set.insert(edge);
+  }
+
+  if (edge_set.size() != edges.size()) {
+    return false;
+  }
+
+  auto [current, end] = boost::edges(cost_map);
+  for (; current != end; ++current) {
+    if (edge_set.find(std::make_tuple(current->m_source, current->m_target)) ==
+        edge_set.end()) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 BOOST_AUTO_TEST_CASE(WhenAtOriginalState_ThenCheckActiveAndDeletedEdges) {
   Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
@@ -77,6 +99,7 @@ BOOST_AUTO_TEST_CASE(WhenMutateAndRevertToGoal_ThenCheckActiveAndDeletedEdges) {
   std::vector<Edge> deleted_edges = edge_set_state.DeletedEdges();
   BOOST_CHECK_EQUAL(active_edges.size(), 0);
   BOOST_CHECK_EQUAL(deleted_edges.size(), 24);
+  BOOST_CHECK(ContainsAllEdges(deleted_edges, cost_map));
 
   // Mutate to full.
   while (!edge_set_state.DeletedEdges().empty()) {
@@ -90,6 +113,7 @@ BOOST_AUTO_TEST_CASE(WhenMutateAndRevertToGoal_ThenCheckActiveAndDeletedEdges) {
   deleted_edges = edge_set_state.DeletedEdges();
   BOOST_CHECK_EQUAL(active_edges.size(), 24);
   BOOST_CHECK_EQUAL(deleted_edges.size(), 0);
+  BOOST_CHECK(ContainsAllEdges(active_edges, cost_map));
 }
 
 } // namespace
