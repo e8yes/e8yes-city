@@ -74,6 +74,8 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsSparse_ThenCheckTravelTime) {
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(25.706940874f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
+  BOOST_CHECK_EQUAL(EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology),
+                    EstimateTravelTimeCost(/*u=*/1, /*v=*/0, topology));
 }
 
 BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
@@ -88,6 +90,8 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(120.048019208f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
+  BOOST_CHECK_EQUAL(EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology),
+                    EstimateTravelTimeCost(/*u=*/1, /*v=*/0, topology));
 }
 
 BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
@@ -101,6 +105,11 @@ BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
 
   BOOST_CHECK_CLOSE(5.0f, cost_01, 1);
   BOOST_CHECK_CLOSE(10.0f, cost_02, 1);
+
+  BOOST_CHECK_EQUAL(EstimateWaitTimeCost(0, 1, cost_map),
+                    EstimateWaitTimeCost(1, 0, cost_map));
+  BOOST_CHECK_EQUAL(EstimateWaitTimeCost(0, 2, cost_map),
+                    EstimateWaitTimeCost(2, 0, cost_map));
 }
 
 BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {

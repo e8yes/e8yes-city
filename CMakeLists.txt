@@ -8,10 +8,13 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 set(PYBIND11_PYTHON_VERSION 3.11)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -g -fPIC -Ofast -flto=auto")
-set(LINK_FLAGS "-Ofast -flto=auto")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Ofast -flto=auto")
+set(LINK_FLAGS "-fsanitize=address -Ofast -flto=auto")
 
 set(SRCS
+    procedural/probing/topology_definition.cpp
+    procedural/probing/topology_edge_set.cpp
+    procedural/probing/topology_mutation.cpp
     procedural/probing/topology_objective.cpp
     procedural/probing/topology_sampler.cpp)
 set(LIBS
@@ -33,6 +36,10 @@ function(add_test TEST_NAME SOURCE_FILE_NAME)
                           Boost::unit_test_framework)
 endfunction()
 
+add_test(procedural_probing_topology_edge_set_test 
+         procedural/probing/topology_edge_set_test.cpp)
+add_test(procedural_probing_topology_mutation_test 
+         procedural/probing/topology_mutation_test.cpp)
 add_test(procedural_probing_topology_objective_test 
          procedural/probing/topology_objective_test.cpp)
 add_test(procedural_probing_topology_sampler_test 

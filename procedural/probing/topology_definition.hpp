@@ -67,5 +67,11 @@ using CostMap = boost::adjacency_list<
     /*DirectedS=*/boost::undirectedS, /*VertexProperty=*/boost::no_property,
     /*EdgeProperty=*/EdgeCost>;
 
+namespace testing {
+
+//
+Topology CreateGridTopology(unsigned side, float scale, float population);
+
+} // namespace testing
 } // namespace procedural
 } // namespace e8
