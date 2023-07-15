@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "procedural/probing/topology_definition.hpp"
-#include "procedural/probing/topology_mutation.hpp"
+#include "procedural/probing/topology/definition.hpp"
+#include "procedural/probing/topology/mutation.hpp"
 #include <random>
 #include <unordered_set>
 #include <utility>

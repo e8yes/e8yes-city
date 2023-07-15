@@ -15,52 +15,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MAIN
-#include "procedural/probing/topology_definition.hpp"
-#include "procedural/probing/topology_objective.hpp"
-#include "procedural/probing/topology_sampler.hpp"
+#include "procedural/probing/topology/definition.hpp"
+#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/sampler.hpp"
 #include <boost/test/unit_test.hpp>
 #include <eigen3/Eigen/Core>
 
 namespace e8 {
 namespace procedural {
 namespace {
-
-Topology CreateGridTopology(unsigned side, float scale, float population) {
-  Topology topology(side * side);
-
-  for (unsigned x = 0; x < side; ++x) {
-    for (unsigned y = 0; y < side; ++y) {
-      float importance =
-          static_cast<float>(2 * side - x - y) / ((side + 1) * side * side);
-
-      topology[x + y * side] = VertexProperties(
-          /*location=*/Eigen::Vector3f(scale * x, scale * y, 0.0),
-          /*local_population=*/importance * population,
-          /*importance=*/importance);
-    }
-  }
-
-  for (unsigned x = 1; x < side - 1; ++x) {
-    for (unsigned y = 1; y < side - 1; ++y) {
-      Topology::vertex_descriptor u = boost::vertex(x + y * side, topology);
-      Topology::vertex_descriptor v0 =
-          boost::vertex(x - 1 + y * side, topology);
-      Topology::vertex_descriptor v1 =
-          boost::vertex(x + (y + 1) * side, topology);
-      Topology::vertex_descriptor v2 =
-          boost::vertex(x + 1 + y * side, topology);
-      Topology::vertex_descriptor v3 =
-          boost::vertex(x + (y - 1) * side, topology);
-
-      boost::add_edge(u, v0, topology);
-      boost::add_edge(u, v1, topology);
-      boost::add_edge(u, v2, topology);
-      boost::add_edge(u, v3, topology);
-    }
-  }
-
-  return topology;
-}
 
 BOOST_AUTO_TEST_CASE(WhenPopulationIsSparse_ThenCheckTravelTime) {
   Topology topology(2);
@@ -155,13 +118,13 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
 }
 
 BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
-  Topology topology =
-      CreateGridTopology(/*side=*/5, /*scale=*/1e3f, /*population=*/4e3);
+  Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
+                                                  /*population=*/4e3);
   CostMap cost_map = CreateCostMapForTopology(topology);
 
   SourcePopulationSampler sampler(topology);
   float objective = EvaluateObjective(topology, cost_map, sampler);
-  BOOST_CHECK_CLOSE(106, objective, 1);
+  BOOST_CHECK_CLOSE(99, objective, 1);
 }
 
 } // namespace

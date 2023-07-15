@@ -12,11 +12,11 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Ofast -flto=auto")
 set(LINK_FLAGS "-fsanitize=address -Ofast -flto=auto")
 
 set(SRCS
-    procedural/probing/topology_definition.cpp
-    procedural/probing/topology_edge_set.cpp
-    procedural/probing/topology_mutation.cpp
-    procedural/probing/topology_objective.cpp
-    procedural/probing/topology_sampler.cpp)
+    procedural/probing/topology/definition.cpp
+    procedural/probing/topology/edge_set.cpp
+    procedural/probing/topology/mutation.cpp
+    procedural/probing/topology/objective.cpp
+    procedural/probing/topology/sampler.cpp)
 set(LIBS
     Boost::graph
     Eigen3::Eigen)
@@ -37,10 +37,10 @@ function(add_test TEST_NAME SOURCE_FILE_NAME)
 endfunction()
 
 add_test(procedural_probing_topology_edge_set_test 
-         procedural/probing/topology_edge_set_test.cpp)
+         procedural/probing/topology/edge_set_test.cpp)
 add_test(procedural_probing_topology_mutation_test 
-         procedural/probing/topology_mutation_test.cpp)
+         procedural/probing/topology/mutation_test.cpp)
 add_test(procedural_probing_topology_objective_test 
-         procedural/probing/topology_objective_test.cpp)
+         procedural/probing/topology/objective_test.cpp)
 add_test(procedural_probing_topology_sampler_test 
-         procedural/probing/topology_sampler_test.cpp)
+         procedural/probing/topology/sampler_test.cpp)

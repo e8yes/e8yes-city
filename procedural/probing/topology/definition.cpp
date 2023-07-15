@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology_definition.hpp"
+#include "procedural/probing/topology/definition.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <eigen3/Eigen/Core>
 
