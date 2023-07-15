@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(e8citydll)
 
-find_package(Boost REQUIRED COMPONENTS graph unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS graph log unit_test_framework)
 find_package(Eigen3 REQUIRED NO_MODULE)
 
 set(PYBIND11_PYTHON_VERSION 3.11)
@@ -16,9 +16,11 @@ set(SRCS
     procedural/probing/topology/edge_set.cpp
     procedural/probing/topology/mutation.cpp
     procedural/probing/topology/objective.cpp
+    procedural/probing/topology/optimizer.cpp
     procedural/probing/topology/sampler.cpp)
 set(LIBS
     Boost::graph
+    Boost::log
     Eigen3::Eigen)
 
 # Standalone library.
@@ -42,5 +44,7 @@ add_test(procedural_probing_topology_mutation_test
          procedural/probing/topology/mutation_test.cpp)
 add_test(procedural_probing_topology_objective_test 
          procedural/probing/topology/objective_test.cpp)
+add_test(procedural_probing_topology_optimizer_test 
+         procedural/probing/topology/optimizer_test.cpp)
 add_test(procedural_probing_topology_sampler_test 
          procedural/probing/topology/sampler_test.cpp)

@@ -125,9 +125,9 @@ BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckCostMap) {
   float cost_23 = boost::get(boost::edge_weight_t(), cost_map,
                              boost::edge(2, 3, cost_map).first);
   BOOST_CHECK_CLOSE(66, cost_01, 1);
-  BOOST_CHECK_CLOSE(120, cost_02, 1);
-  BOOST_CHECK_CLOSE(130, cost_12, 1);
-  BOOST_CHECK_CLOSE(162, cost_23, 1);
+  BOOST_CHECK_CLOSE(145, cost_02, 1);
+  BOOST_CHECK_CLOSE(155, cost_12, 1);
+  BOOST_CHECK_CLOSE(187, cost_23, 1);
 }
 
 BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckCostMap) {

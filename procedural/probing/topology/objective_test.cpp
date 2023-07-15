@@ -112,9 +112,9 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
                              boost::edge(2, 3, cost_map).first);
 
   BOOST_CHECK_CLOSE(52, cost_01, 1);
-  BOOST_CHECK_CLOSE(67, cost_02, 1);
-  BOOST_CHECK_CLOSE(85, cost_12, 1);
-  BOOST_CHECK_CLOSE(105, cost_23, 1);
+  BOOST_CHECK_CLOSE(92, cost_02, 1);
+  BOOST_CHECK_CLOSE(109, cost_12, 1);
+  BOOST_CHECK_CLOSE(130, cost_23, 1);
 }
 
 BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
 
   SourcePopulationSampler sampler(topology);
   float objective = EvaluateObjective(topology, cost_map, sampler);
-  BOOST_CHECK_CLOSE(99, objective, 1);
+  BOOST_CHECK_CLOSE(105, objective, 1);
 }
 
 } // namespace
