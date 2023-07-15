@@ -33,19 +33,15 @@ Topology CreateTopology() {
   Topology topology(4);
   topology[0] = VertexProperties(/*location=*/Eigen::Vector3f(0, 0, 0),
                                  /*local_population=*/200,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / 4.0f);
   topology[1] = VertexProperties(/*location=*/Eigen::Vector3f(0, 1000, 0),
                                  /*local_population=*/100,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / 4.0f);
   topology[2] = VertexProperties(/*location=*/Eigen::Vector3f(1000, 0, 0),
                                  /*local_population=*/300,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / 4.0f);
   topology[3] = VertexProperties(/*location=*/Eigen::Vector3f(3000, 0, 0),
                                  /*local_population=*/50,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / 4.0f);
 
   boost::add_edge(0, 1, EstimateTravelTimeCost(0, 1, topology), topology);

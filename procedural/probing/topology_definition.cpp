@@ -32,7 +32,7 @@ Topology CreateGridTopology(unsigned side, float scale, float population) {
 
       topology[x + y * side] = VertexProperties(
           /*location=*/Eigen::Vector3f(scale * x, scale * y, 0.0),
-          /*local_population=*/importance * population, /*area_population=*/0,
+          /*local_population=*/importance * population,
           /*importance=*/importance);
     }
   }

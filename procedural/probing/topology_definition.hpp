@@ -29,9 +29,9 @@ struct VertexProperties {
   VertexProperties() = default;
 
   VertexProperties(Eigen::Vector3f const &location, float local_population,
-                   float area_population, float importance)
+                   float importance)
       : location(location), local_population(local_population),
-        area_population(area_population), importance(importance) {}
+        importance(importance) {}
 
   // The spatial location of the vertex.
   Eigen::Vector3f location;
@@ -39,10 +39,6 @@ struct VertexProperties {
   // The number of residents around the immediate area centered at the above
   // location.
   float local_population;
-
-  // The representative number of residents around the larger area centered at
-  // the above location.
-  float area_population;
 
   // The normalized importance of the vertex. In particular, normalization
   // means: \sum_{v \in V} importance(v) = 1.

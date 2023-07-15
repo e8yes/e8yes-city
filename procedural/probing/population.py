@@ -224,10 +224,6 @@ class PopulationProbe:
     # the location.
     population_grid_200: float
 
-    # The expected number of people living in the 1km*1km grid, centered at
-    # the location.
-    population_grid_1000: float
-
 
 def GeneratePopulationProbes(city_size: float,
                              seed_number: int = 13) -> List[PopulationProbe]:
@@ -264,16 +260,9 @@ def GeneratePopulationProbes(city_size: float,
             city_cores=city_cores,
             area_width=200,
             patch_width=50)
-        population_grid_1000 = _ComputePopulationEstimates(
-            location=location,
-            population_size=population_size,
-            city_cores=city_cores,
-            area_width=1000,
-            patch_width=100)
 
         result.append(PopulationProbe(
             location=location,
-            population_grid_200=population_grid_200,
-            population_grid_1000=population_grid_1000))
+            population_grid_200=population_grid_200))
 
     return result

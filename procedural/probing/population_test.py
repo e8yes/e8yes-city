@@ -68,13 +68,10 @@ class PopulationTest(unittest.TestCase):
         probes = GeneratePopulationProbes(city_size=10000)
 
         population_200 = 0.0
-        population_1000 = 0.0
         for probe in probes:
             population_200 += probe.population_grid_200
-            population_1000 += probe.population_grid_1000
 
         self.assertAlmostEqual(348*10**3, population_200, delta=5*10**3)
-        self.assertTrue(population_1000 > 0.0)
 
 
 if __name__ == '__main__':

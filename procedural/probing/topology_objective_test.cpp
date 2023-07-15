@@ -35,7 +35,7 @@ Topology CreateGridTopology(unsigned side, float scale, float population) {
 
       topology[x + y * side] = VertexProperties(
           /*location=*/Eigen::Vector3f(scale * x, scale * y, 0.0),
-          /*local_population=*/importance * population, /*area_population=*/0,
+          /*local_population=*/importance * population,
           /*importance=*/importance);
     }
   }
@@ -64,13 +64,12 @@ Topology CreateGridTopology(unsigned side, float scale, float population) {
 
 BOOST_AUTO_TEST_CASE(WhenPopulationIsSparse_ThenCheckTravelTime) {
   Topology topology(2);
-  topology[0] =
-      VertexProperties(/*location=*/Eigen::Vector3f(.0f, .0f, .0f),
-                       /*local_population=*/.0f, /*area_population=*/.0f,
-                       /*importance=*/0.5f);
+  topology[0] = VertexProperties(/*location=*/Eigen::Vector3f(.0f, .0f, .0f),
+                                 /*local_population=*/.0f,
+                                 /*importance=*/0.5f);
   topology[1] =
       VertexProperties(/*location=*/Eigen::Vector3f(1000.0f, .0f, .0f),
-                       /*local_population=*/.0f, /*area_population=*/.0f,
+                       /*local_population=*/.0f,
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(25.706940874f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
@@ -80,13 +79,12 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsSparse_ThenCheckTravelTime) {
 
 BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
   Topology topology(2);
-  topology[0] =
-      VertexProperties(/*location=*/Eigen::Vector3f(.0f, .0f, .0f),
-                       /*local_population=*/500.0f, /*area_population=*/2500.0f,
-                       /*importance=*/0.5f);
+  topology[0] = VertexProperties(/*location=*/Eigen::Vector3f(.0f, .0f, .0f),
+                                 /*local_population=*/500.0f,
+                                 /*importance=*/0.5f);
   topology[1] =
       VertexProperties(/*location=*/Eigen::Vector3f(1000.0f, .0f, .0f),
-                       /*local_population=*/500.0f, /*area_population=*/2500.0f,
+                       /*local_population=*/500.0f,
                        /*importance=*/.5f);
   BOOST_CHECK_CLOSE(120.048019208f,
                     EstimateTravelTimeCost(/*u=*/0, /*v=*/1, topology), 5.0f);
@@ -123,19 +121,15 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
   Topology topology(kVertexCount);
   topology[0] = VertexProperties(/*location=*/Eigen::Vector3f(0, 0, 0),
                                  /*local_population=*/kLocalPopulation,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / kVertexCount);
   topology[1] = VertexProperties(/*location=*/Eigen::Vector3f(0, 1000, 0),
                                  /*local_population=*/kLocalPopulation,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / kVertexCount);
   topology[2] = VertexProperties(/*location=*/Eigen::Vector3f(1000, 0, 0),
                                  /*local_population=*/kLocalPopulation,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / kVertexCount);
   topology[3] = VertexProperties(/*location=*/Eigen::Vector3f(3000, 0, 0),
                                  /*local_population=*/kLocalPopulation,
-                                 /*area_population=*/0,
                                  /*importance=*/1.0f / kVertexCount);
 
   boost::add_edge(0, 1, topology);
