@@ -15,8 +15,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MAIN
-#include "procedural/probing/topology_definition.hpp"
-#include "procedural/probing/topology_sampler.hpp"
+#include "procedural/probing/topology/definition.hpp"
+#include "procedural/probing/topology/sampler.hpp"
 #include <boost/test/unit_test.hpp>
 #include <random>
 #include <vector>

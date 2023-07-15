@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology_mutation.hpp"
-#include "procedural/probing/topology_definition.hpp"
-#include "procedural/probing/topology_objective.hpp"
+#include "procedural/probing/topology/mutation.hpp"
+#include "procedural/probing/topology/definition.hpp"
+#include "procedural/probing/topology/objective.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <cassert>
 #include <functional>

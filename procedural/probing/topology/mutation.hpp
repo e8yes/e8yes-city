@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "procedural/probing/topology_definition.hpp"
+#include "procedural/probing/topology/definition.hpp"
 #include <functional>
 #include <random>
 #include <tuple>

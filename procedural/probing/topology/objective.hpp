@@ -16,8 +16,8 @@
 
 #pragma once
 
-#include "procedural/probing/topology_definition.hpp"
-#include "procedural/probing/topology_sampler.hpp"
+#include "procedural/probing/topology/definition.hpp"
+#include "procedural/probing/topology/sampler.hpp"
 #include <random>
 #include <vector>
 
