@@ -32,9 +32,9 @@ namespace procedural {
 namespace {
 
 float const kPedestrianCrossingTimeSeconds = 10.0f;
-float const k3WayIntersectionWaitTimeSeconds = 40.0f;
-float const k4WayIntersectionWaitTimeSeconds = 80.0f;
-float const kIntersectionWaitTimeSecondsPerWay = 30.0f;
+float const k3WayIntersectionWaitTimeSeconds = 90.0f;
+float const k4WayIntersectionWaitTimeSeconds = 180.0f;
+float const kIntersectionWaitTimeSecondsPerWay = 1000.0f;
 
 float const kMinSpeedMetersPerSecond = 8.33f;
 float const kMaxSpeedMetersPerSecond = 38.9f;
@@ -88,6 +88,7 @@ CostMap CreateCostMapWithConnections(Topology const &topology) {
 
   auto [current, end] = boost::edges(topology);
   for (; current != end; ++current) {
+    assert(!boost::edge(current->m_source, current->m_target, result).second);
     boost::add_edge(current->m_source, current->m_target, result);
   }
 
