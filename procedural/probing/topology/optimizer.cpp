@@ -48,15 +48,15 @@ unsigned MutationOperationCountAt(unsigned i, unsigned iteration_count,
 void ReportProgress(unsigned i, unsigned iteration_count, float score,
                     unsigned mutation_operation_count) {
   unsigned last_percentage = static_cast<int>(static_cast<float>(i - 1) /
-                                              (iteration_count - 1) * 100.f);
+                                              (iteration_count - 1) * 10.f);
   unsigned percentage =
-      static_cast<int>(static_cast<float>(i) / (iteration_count - 1) * 100.f);
+      static_cast<int>(static_cast<float>(i) / (iteration_count - 1) * 10.f);
   if (i != 0 && percentage == last_percentage) {
     return;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "OptimizeToplogy() " << percentage
-                          << "% current score " << score
+  BOOST_LOG_TRIVIAL(info) << "OptimizeToplogy() " << percentage * 10
+                          << " % current score " << score
                           << ", mutation operation count "
                           << mutation_operation_count;
 }
