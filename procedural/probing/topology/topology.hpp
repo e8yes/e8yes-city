@@ -17,12 +17,10 @@
 #pragma once
 
 #include "procedural/probing/topology/probe.hpp"
-#include <pybind11/pybind11.h>
 #include <vector>
 
 namespace e8 {
 namespace procedural {
-namespace probing {
 
 // In the order of the specified probe array, this indicate two probes at the
 // following indices should be connected bidirectionally.
@@ -51,6 +49,5 @@ ProbeTopologyResult
 ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
                      unsigned optimization_step_count);
 
-} // namespace probing
 } // namespace procedural
 } // namespace e8
