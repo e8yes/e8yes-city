@@ -24,7 +24,8 @@ set(SRCS
     procedural/probing/topology/mutation.cpp
     procedural/probing/topology/objective.cpp
     procedural/probing/topology/optimizer.cpp
-    procedural/probing/topology/sampler.cpp)
+    procedural/probing/topology/sampler.cpp
+    procedural/probing/topology/topology.cpp)
 set(LIBS
     Boost::graph
     Boost::log

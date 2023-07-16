@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(WhenTopologyIsMeshGrid_ThenCheckEdgeCountIsLess) {
                                                   /*population=*/4e3);
   std::default_random_engine random_engine(13);
   OptimizationResult result =
-      OptimizeToplogy(topology, /*iteration_count=*/1000, &random_engine);
+      OptimizeTopology(topology, /*iteration_count=*/1000, &random_engine);
   BOOST_CHECK_CLOSE(147, result.score, 1);
   BOOST_CHECK_LT(boost::num_edges(result.topology), boost::num_edges(topology));
 }

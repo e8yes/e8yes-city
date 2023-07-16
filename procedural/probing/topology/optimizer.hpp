@@ -33,9 +33,9 @@ struct OptimizationResult {
 
 // It performs combinatorial optimization over the specified topology by hill
 // climbing.
-OptimizationResult OptimizeToplogy(Topology const &topology,
-                                   unsigned iteration_count,
-                                   std::default_random_engine *random_engine);
+OptimizationResult OptimizeTopology(Topology const &topology,
+                                    unsigned iteration_count,
+                                    std::default_random_engine *random_engine);
 
 } // namespace procedural
 } // namespace e8
