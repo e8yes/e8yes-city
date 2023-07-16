@@ -14,28 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#pragma once
+#include "procedural/probing/topology/pybind.hpp"
+#include <pybind11/pybind11.h>
 
-#include "procedural/probing/topology/definition.hpp"
-#include <random>
-
-namespace e8 {
-namespace procedural {
-
-// Returns by OptimizeToplogy().
-struct OptimizationResult {
-  // The optimized topology.
-  Topology topology;
-
-  // The objective score of the topology.
-  float score;
-};
-
-// It performs combinatorial optimization over the specified topology by hill
-// climbing.
-OptimizationResult OptimizeTopology(Topology const &topology,
-                                    unsigned iteration_count,
-                                    std::default_random_engine *random_engine);
-
-} // namespace procedural
-} // namespace e8
+PYBIND11_MODULE(e8city, m) { e8::procedural::RegisterProbeTopology(&m); }

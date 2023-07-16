@@ -55,7 +55,7 @@ void ReportProgress(unsigned i, unsigned iteration_count, float score,
     return;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "OptimizeToplogy() " << percentage * 10
+  BOOST_LOG_TRIVIAL(info) << "OptimizeTopology() " << percentage * 10
                           << " % current score " << score
                           << ", mutation operation count "
                           << mutation_operation_count;
@@ -86,9 +86,9 @@ Topology ToResultTopology(CostMap const &cost_map, Topology const &original) {
 
 } // namespace
 
-OptimizationResult OptimizeToplogy(Topology const &topology,
-                                   unsigned iteration_count,
-                                   std::default_random_engine *random_engine) {
+OptimizationResult OptimizeTopology(Topology const &topology,
+                                    unsigned iteration_count,
+                                    std::default_random_engine *random_engine) {
   CostMap cost_map = CreateCostMapForTopology(topology);
   EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, random_engine);
   unsigned source_sample_count = SourceSampleCount(topology);

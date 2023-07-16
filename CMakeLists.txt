@@ -5,17 +5,21 @@ project(e8citydll)
 find_package(Boost REQUIRED COMPONENTS graph log unit_test_framework)
 find_package(CGAL REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
+find_package(pybind11 REQUIRED)
 
 set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
 set(PYBIND11_PYTHON_VERSION 3.11)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Og")
-set(LINK_FLAGS "-fsanitize=address")
-# set(CMAKE_BUILD_TYPE Release)
-# set(CMAKE_CXX_FLAGS "-fPIC -Ofast -flto=auto")
-# set(LINK_FLAGS "-Ofast -flto=auto")
+set(CMAKE_BUILD_TYPE Release)
+
+if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Og")
+    set(LINK_FLAGS "-fsanitize=address")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL Release)
+    set(CMAKE_CXX_FLAGS "-fPIC -Ofast -flto=auto")
+    set(LINK_FLAGS "-Ofast -flto=auto")
+endif()
 
 set(SRCS
     procedural/probing/topology/definition.cpp
@@ -24,12 +28,22 @@ set(SRCS
     procedural/probing/topology/mutation.cpp
     procedural/probing/topology/objective.cpp
     procedural/probing/topology/optimizer.cpp
-    procedural/probing/topology/sampler.cpp)
+    procedural/probing/topology/sampler.cpp
+    procedural/probing/topology/topology.cpp)
+set(PYBIND_SRCS
+    procedural/probing/topology/pybind.cpp
+    pywrap.cpp)
 set(LIBS
     Boost::graph
     Boost::log
     CGAL::CGAL
     Eigen3::Eigen)
+
+# Main Pybind11 module.
+pybind11_add_module(${PROJECT_NAME} ${SRCS} ${PYBIND_SRCS})
+target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
+target_include_directories(${PROJECT_NAME} PRIVATE . ${PYBIND11_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
 
 # Standalone library.
 add_library(${PROJECT_NAME}_standalone ${SRCS})
