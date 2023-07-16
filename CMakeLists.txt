@@ -3,17 +3,24 @@ cmake_minimum_required(VERSION 3.10)
 project(e8citydll)
 
 find_package(Boost REQUIRED COMPONENTS graph log unit_test_framework)
+find_package(CGAL REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
 
+set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
 set(PYBIND11_PYTHON_VERSION 3.11)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Ofast -flto=auto")
-set(LINK_FLAGS "-fsanitize=address -Ofast -flto=auto")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -fPIC -fsanitize=address -Og")
+set(LINK_FLAGS "-fsanitize=address")
+# set(CMAKE_BUILD_TYPE Release)
+# set(CMAKE_CXX_FLAGS "-fPIC -Ofast -flto=auto")
+# set(LINK_FLAGS "-Ofast -flto=auto")
 
 set(SRCS
     procedural/probing/topology/definition.cpp
     procedural/probing/topology/edge_set.cpp
+    procedural/probing/topology/init.cpp
     procedural/probing/topology/mutation.cpp
     procedural/probing/topology/objective.cpp
     procedural/probing/topology/optimizer.cpp
@@ -21,6 +28,7 @@ set(SRCS
 set(LIBS
     Boost::graph
     Boost::log
+    CGAL::CGAL
     Eigen3::Eigen)
 
 # Standalone library.
@@ -40,6 +48,8 @@ endfunction()
 
 add_test(procedural_probing_topology_edge_set_test 
          procedural/probing/topology/edge_set_test.cpp)
+add_test(procedural_probing_topology_init_test 
+         procedural/probing/topology/init_test.cpp)
 add_test(procedural_probing_topology_mutation_test 
          procedural/probing/topology/mutation_test.cpp)
 add_test(procedural_probing_topology_objective_test 
