@@ -31,10 +31,11 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kPedestrianCrossingTimeSeconds = 10.0f;
-float const k3WayIntersectionWaitTimeSeconds = 90.0f;
-float const k4WayIntersectionWaitTimeSeconds = 180.0f;
-float const kIntersectionWaitTimeSecondsPerWay = 1000.0f;
+float const kPedestrianCrossingTimeSeconds = 0.0f;
+float const kUTurnWaitTimeSeconds = 20.0f;
+float const k3WayIntersectionWaitTimeSeconds = 20.0f;
+float const k4WayIntersectionWaitTimeSeconds = 45.0f;
+float const kIntersectionWaitTimeSecondsPerWay = 50.0f;
 
 float const kMinSpeedMetersPerSecond = 8.33f;
 float const kMaxSpeedMetersPerSecond = 38.9f;
@@ -43,6 +44,7 @@ constexpr float const kP10Population = 30.6;
 constexpr float const kLog9 = 2.197224577f;
 
 constexpr float const kAcos04 = 1.159279481f;
+constexpr float const kAcos10 = 0.0f;
 constexpr float const kMaxTolerableTravelTimeSeconds = 3600.0f;
 
 float EstimateAverageSpeed(float local_population) {
@@ -57,7 +59,7 @@ float EstimateAverageWaitTime(unsigned intersection_size) {
   switch (intersection_size) {
   case 0:
   case 1:
-    return 0;
+    return kUTurnWaitTimeSeconds;
   case 2:
     return kPedestrianCrossingTimeSeconds;
   case 3:
@@ -76,7 +78,7 @@ float EstimateLikelihoodToTravel(float time_cost) {
     return 0;
   }
 
-  constexpr float phi = -kAcos04;
+  constexpr float phi = -kAcos10;
   constexpr float omega =
       (std::numbers::pi - phi) / kMaxTolerableTravelTimeSeconds;
   return 0.5 * (1 + std::cos(omega * time_cost + phi));

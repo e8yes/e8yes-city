@@ -37,6 +37,7 @@ void RegisterProbeTopology(pybind11::module *m) {
                     pybind11::return_value_policy::copy);
 
   pybind11::class_<ProbeTopologyResult>(*m, "ProbeTopologyResult")
+      .def(pybind11::init<>())
       .def_readonly("connections", &ProbeTopologyResult::connections,
                     pybind11::return_value_policy::copy)
       .def_readonly("score", &ProbeTopologyResult::score,

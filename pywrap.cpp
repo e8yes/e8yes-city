@@ -17,4 +17,4 @@
 #include "procedural/probing/topology/pybind.hpp"
 #include <pybind11/pybind11.h>
 
-PYBIND11_MODULE(e8city, m) { e8::procedural::RegisterProbeTopology(&m); }
+PYBIND11_MODULE(e8citydll, m) { e8::procedural::RegisterProbeTopology(&m); }

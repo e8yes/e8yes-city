@@ -28,8 +28,6 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kProbAdd = 0.5f;
-
 void AddEdge(unsigned edge_to_add, std::vector<Edge> *edges,
              unsigned *separator, internal::MutationLog *log) {
   assert(edge_to_add >= *separator);
@@ -51,6 +49,7 @@ void DeleteEdge(unsigned edge_to_delete, std::vector<Edge> *edges,
 }
 
 bool ChooseAddEdgeOperation(std::vector<Edge> const &edges, unsigned separator,
+                            float prob_add,
                             std::default_random_engine *random_engine) {
   if (separator == edges.size()) {
     // There is no deleted edge to add. At this state, only delete-edge
@@ -65,7 +64,7 @@ bool ChooseAddEdgeOperation(std::vector<Edge> const &edges, unsigned separator,
   }
 
   float p = std::uniform_real_distribution<float>(.0f, 1.f)(*random_engine);
-  return p < kProbAdd;
+  return p < prob_add;
 }
 
 unsigned SampleActiveEdge(std::vector<Edge> const &edges, unsigned separator,
@@ -106,13 +105,13 @@ void EdgeSetState::Add(Edge const &edge) {
   ++separator_;
 }
 
-Mutation EdgeSetState::Mutate(unsigned operation_count) {
+Mutation EdgeSetState::Mutate(unsigned operation_count, float prob_add) {
   Mutation result(/*num_additions=*/operation_count,
                   /*num_deletions=*/operation_count);
 
   log_ = internal::MutationLog(operation_count, separator_);
   for (unsigned i = 0; i < operation_count; ++i) {
-    if (ChooseAddEdgeOperation(edges_, separator_, random_engine_)) {
+    if (ChooseAddEdgeOperation(edges_, separator_, prob_add, random_engine_)) {
       unsigned edge_to_add =
           SampleDeletedEdge(edges_, separator_, random_engine_);
       result.PushAddition(edges_[edge_to_add]);
