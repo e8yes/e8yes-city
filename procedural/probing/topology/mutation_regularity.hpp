@@ -24,11 +24,12 @@
 namespace e8 {
 namespace procedural {
 
-// Regularity mutations affects vertex level objective. Definong the index to a topology vertex as vertex provides reasonable abstraction.
+// Regularity mutations affects vertex level objective. Definong the index to a
+// topology vertex as vertex provides reasonable abstraction.
 using Vertex = unsigned;
 
-// Extends the mutation to support the saving of the current vertex score, so the
-// later mutation made to the edge set can be reverted.
+// Extends the mutation to support the saving of the current vertex score, so
+// the later mutation made to the edge set can be reverted.
 struct RevertibleRegularityMutation {
   RevertibleRegularityMutation(Mutation &&other,
                                RegularityScoreMap const &score_map,
@@ -37,7 +38,8 @@ struct RevertibleRegularityMutation {
   // The mutation to prepare recovery for.
   Mutation mutation;
 
-  // The set of vertices and their current objective values that are going to be affected by the mutation.
+  // The set of vertices and their current objective values that are going to be
+  // affected by the mutation.
   std::unordered_map<Vertex, RegularityScore> affected_vertices;
 
   // The current total objective score before applying the mutation.
@@ -45,14 +47,17 @@ struct RevertibleRegularityMutation {
 };
 
 // Actuates the mutation onto the topology and the regularity score map then
-// returns the updated objective score. It assumes the mutation is derived from the current state of the topology.
+// returns the updated objective score. It assumes the mutation is derived from
+// the current state of the topology.
 RegularityScore ApplyMutation(RevertibleRegularityMutation const &revertible,
-                    Topology *topology, RegularityScoreMap *score_map);
+                              Topology *topology,
+                              RegularityScoreMap *score_map);
 
 // Reverts the mutation previously applied to the topology and the regularity
 // cost map then returns the previous objective score.
 RegularityScore RevertMutation(RevertibleRegularityMutation const &revertible,
-                     Topology *topology, RegularityScoreMap *score_map);
+                               Topology *topology,
+                               RegularityScoreMap *score_map);
 
 } // namespace procedural
 } // namespace e8

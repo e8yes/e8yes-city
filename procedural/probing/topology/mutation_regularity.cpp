@@ -49,7 +49,7 @@ RevertibleRegularityMutation::RevertibleRegularityMutation(
   AddAffectedVertices(other.deletions, score_map, &affected_vertices);
 }
 
-float ApplyMutation(RevertibleRegularityMutation const &revertible,
+RegularityScore ApplyMutation(RevertibleRegularityMutation const &revertible,
                     Topology *topology, RegularityScoreMap *score_map) {
   for (auto addition : revertible.mutation.additions) {
     auto [u, v] = addition;
@@ -81,7 +81,7 @@ float ApplyMutation(RevertibleRegularityMutation const &revertible,
   return revertible.score + score_diff;
 }
 
-float RevertMutation(RevertibleRegularityMutation const &revertible,
+RegularityScore RevertMutation(RevertibleRegularityMutation const &revertible,
                      Topology *topology, RegularityScoreMap *score_map) {
   for (auto addition : revertible.mutation.additions) {
     auto [u, v] = addition;

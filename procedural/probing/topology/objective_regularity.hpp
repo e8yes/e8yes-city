@@ -28,19 +28,21 @@ using RegularityScore = float;
 // For storing the objective score at each vertex.
 using RegularityScoreMap = std::vector<RegularityScore>;
 
-// Computes the objective at the specified vertex in the topology. The objective score is can be thought as the distance from the standard street patterns.
-// In particular,
-// Zero/one way intersections are undesirable.
-// In a two-way intersection, the two streets are expected to run in a straight line.
-// In a three-way intersection, the three streets are expected to form a T shape.
-// In a four-way intersection, the four streets are expected to form a + shape.
-// Intersections with greater number of ways are more undesirable than those of zero/one way.
+// Computes the objective at the specified vertex in the topology. The objective
+// score is can be thought as the distance from the standard street patterns. In
+// particular, Zero/one way intersections are undesirable. In a two-way
+// intersection, the two streets are expected to run in a straight line. In a
+// three-way intersection, the three streets are expected to form a T shape. In
+// a four-way intersection, the four streets are expected to form a + shape.
+// Intersections with greater number of ways are more undesirable than those of
+// zero/one way.
 RegularityScore RegularityObjectiveAt(unsigned u, Topology const &topology);
 
 // Creates a score map from the specified topology.
 RegularityScoreMap CreateRegularityScoreMapFor(Topology const &topology);
 
-// Computes the total objective score for the entire score map. It basically sums the objective scores over the vertices.
+// Computes the total objective score for the entire score map. It basically
+// sums the objective scores over the vertices.
 RegularityScore
 EvaluateRegularityObjective(RegularityScoreMap const &score_map);
 
