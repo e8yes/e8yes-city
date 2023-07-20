@@ -24,10 +24,10 @@
 namespace e8 {
 namespace procedural {
 
-//
+// Regularity mutations affects vertex level objective. Definong the index to a topology vertex as vertex provides reasonable abstraction.
 using Vertex = unsigned;
 
-//
+// 
 struct RevertibleRegularityMutation {
   //
   RevertibleRegularityMutation(Mutation &&other,
