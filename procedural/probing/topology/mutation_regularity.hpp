@@ -45,13 +45,13 @@ struct RevertibleRegularityMutation {
 };
 
 // Actuates the mutation onto the topology and the regularity score map then
-// returns the updated objective score.
-float ApplyMutation(RevertibleRegularityMutation const &revertible,
+// returns the updated objective score. It assumes the mutation is derived from the current state of the topology.
+RegularityScore ApplyMutation(RevertibleRegularityMutation const &revertible,
                     Topology *topology, RegularityScoreMap *score_map);
 
 // Reverts the mutation previously applied to the topology and the regularity
 // cost map then returns the previous objective score.
-float RevertMutation(RevertibleRegularityMutation const &revertible,
+RegularityScore RevertMutation(RevertibleRegularityMutation const &revertible,
                      Topology *topology, RegularityScoreMap *score_map);
 
 } // namespace procedural
