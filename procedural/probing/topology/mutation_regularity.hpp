@@ -27,9 +27,9 @@ namespace procedural {
 // Regularity mutations affects vertex level objective. Definong the index to a topology vertex as vertex provides reasonable abstraction.
 using Vertex = unsigned;
 
-// 
+// Extends the mutation to support the saving of the current vertex score, so the
+// later mutation made to the edge set can be reverted.
 struct RevertibleRegularityMutation {
-  //
   RevertibleRegularityMutation(Mutation &&other,
                                RegularityScoreMap const &score_map,
                                RegularityScore score);
@@ -37,10 +37,10 @@ struct RevertibleRegularityMutation {
   // The mutation to prepare recovery for.
   Mutation mutation;
 
-  //
+  // The set of vertices and their current objective values that are going to be affected by the mutation.
   std::unordered_map<Vertex, RegularityScore> affected_vertices;
 
-  //
+  // The current total objective score before applying the mutation.
   RegularityScore score;
 };
 
