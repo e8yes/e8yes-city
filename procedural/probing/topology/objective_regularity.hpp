@@ -25,10 +25,13 @@ namespace procedural {
 // Represents the regularity score at a vertex (population probe).
 using RegularityScore = float;
 
-//
+// For storing the objective score at each vertex.
 using RegularityScoreMap = std::vector<RegularityScore>;
 
-//
+// Computes the objective at the specified vertex in the topology. The objective score is can be thought as the distance from the standard street patterns.
+// A zero/one way intersection is undesirable.
+// In a two-way intersection, the two streets are expected to run in a straight line.
+// In three-way intersection, the three streets are expected to form a T shape.
 RegularityScore RegularityObjectiveAt(unsigned u, Topology const &topology);
 
 //
