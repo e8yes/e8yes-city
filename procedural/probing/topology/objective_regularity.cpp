@@ -71,7 +71,7 @@ RegularityScore RegularityObjectiveAt(unsigned u, Topology const &topology) {
   case 3:
     return RegularityObjectiveAt3WayIntersection(u, topology);
   case 4:
-    RegularityObjectiveAt4WayIntersection(u, topology);
+    return RegularityObjectiveAt4WayIntersection(u, topology);
   default:
     return -1.2f;
   }

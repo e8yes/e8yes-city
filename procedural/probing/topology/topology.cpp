@@ -17,7 +17,7 @@
 #include "procedural/probing/topology/topology.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/init.hpp"
-#include "procedural/probing/topology/optimizer.hpp"
+#include "procedural/probing/topology/optimize_regularity.hpp"
 #include "procedural/probing/topology/probe.hpp"
 #include <random>
 #include <vector>
@@ -45,7 +45,7 @@ ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
                      unsigned optimization_step_count) {
   Topology initial_topology = CreateDelaunayTopology(probes);
   std::default_random_engine random_engine;
-  OptimizationResult optimization_result = OptimizeTopology(
+  OptimizeRegularityResult optimization_result = OptimizeRegularity(
       initial_topology, optimization_step_count, &random_engine);
   return ProbeTopologyResult{
       .connections = ToProbeConnection(optimization_result.topology),

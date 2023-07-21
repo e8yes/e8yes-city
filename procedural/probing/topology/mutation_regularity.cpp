@@ -45,12 +45,14 @@ RevertibleRegularityMutation::RevertibleRegularityMutation(
     : mutation(std::move(other)), score(score) {
   affected_vertices.reserve(
       2 * (mutation.additions.size() + mutation.deletions.size()));
-  AddAffectedVertices(other.additions, score_map, &affected_vertices);
-  AddAffectedVertices(other.deletions, score_map, &affected_vertices);
+
+  AddAffectedVertices(mutation.additions, score_map, &affected_vertices);
+  AddAffectedVertices(mutation.deletions, score_map, &affected_vertices);
 }
 
 RegularityScore ApplyMutation(RevertibleRegularityMutation const &revertible,
-                    Topology *topology, RegularityScoreMap *score_map) {
+                              Topology *topology,
+                              RegularityScoreMap *score_map) {
   for (auto addition : revertible.mutation.additions) {
     auto [u, v] = addition;
 
@@ -82,7 +84,8 @@ RegularityScore ApplyMutation(RevertibleRegularityMutation const &revertible,
 }
 
 RegularityScore RevertMutation(RevertibleRegularityMutation const &revertible,
-                     Topology *topology, RegularityScoreMap *score_map) {
+                               Topology *topology,
+                               RegularityScoreMap *score_map) {
   for (auto addition : revertible.mutation.additions) {
     auto [u, v] = addition;
 

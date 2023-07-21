@@ -26,8 +26,11 @@ set(SRCS
     procedural/probing/topology/edge_set.cpp
     procedural/probing/topology/init.cpp
     procedural/probing/topology/mutation.cpp
+    procedural/probing/topology/mutation_regularity.cpp
     procedural/probing/topology/objective.cpp
+    procedural/probing/topology/objective_regularity.cpp
     procedural/probing/topology/optimizer.cpp
+    procedural/probing/topology/optimize_regularity.cpp
     procedural/probing/topology/sampler.cpp
     procedural/probing/topology/topology.cpp)
 set(PYBIND_SRCS

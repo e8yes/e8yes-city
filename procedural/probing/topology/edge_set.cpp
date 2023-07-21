@@ -163,5 +163,15 @@ EdgeSetState CreateEdgeSetStateFor(CostMap const &cost_map,
   return edge_set;
 }
 
+EdgeSetState CreateEdgeSetStateFor(Topology const &topology,
+                                   std::default_random_engine *random_engine) {
+  EdgeSetState edge_set(random_engine);
+  auto [current, end] = boost::edges(topology);
+  for (; current != end; ++current) {
+    edge_set.Add(Edge(current->m_source, current->m_target));
+  }
+  return edge_set;
+}
+
 } // namespace procedural
 } // namespace e8
