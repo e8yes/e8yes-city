@@ -53,7 +53,7 @@ public:
   // either turn a deleted edge into an active one or vice versa. It's possible
   // that it eventually yields an empty mutation through the process. The
   // mutation is applied to the actual edge states.
-  Mutation Mutate(unsigned operation_count);
+  Mutation Mutate(unsigned operation_count, float prob_add = 0.5f);
 
   // Reverts the application of the last mutation performed by
   // EdgeSetState::Mutate(). Note, it can't revert more than 1 mutation. Namely,

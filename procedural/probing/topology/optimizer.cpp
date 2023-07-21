@@ -22,6 +22,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/log/trivial.hpp>
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <utility>
 
@@ -29,8 +30,10 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kSourceSampleRatio = 0.01f;
+float const kSourceSampleRatio = 0.2f;
 float const kInitialMutationRatio = 0.1f;
+float const kMutationScheduleFactor = -4.0f;
+float const kTemperatureScheduleFactor = -1000.0f;
 
 unsigned SourceSampleCount(Topology const &topology) {
   return std::max(1U, static_cast<unsigned>(boost::num_vertices(topology) *
@@ -39,14 +42,34 @@ unsigned SourceSampleCount(Topology const &topology) {
 
 unsigned MutationOperationCountAt(unsigned i, unsigned iteration_count,
                                   CostMap const &cost_map) {
+  if (i == 0) {
+    return 0.2f * boost::num_edges(cost_map);
+  }
+  float t = static_cast<float>(i) / (iteration_count - 1);
   float mutation_ratio =
-      (1 - static_cast<float>(i) / iteration_count) * kInitialMutationRatio;
+      kInitialMutationRatio * std::exp(kMutationScheduleFactor * t);
   return std::max(
       1U, static_cast<unsigned>(boost::num_edges(cost_map) * mutation_ratio));
 }
 
+bool AcceptMutation(float score, float best_score, unsigned i,
+                    unsigned iteration_count,
+                    std::default_random_engine *random_engine) {
+  if (score >= best_score) {
+    return true;
+  }
+
+  float t = static_cast<float>(i) / (iteration_count - 1);
+  if (t > .5f) {
+    return false;
+  }
+  float relative_regression = (best_score - score) / best_score;
+  float p = std::exp(kTemperatureScheduleFactor * relative_regression * t);
+  return std::uniform_real_distribution<float>(0, 1)(*random_engine) < p;
+}
+
 void ReportProgress(unsigned i, unsigned iteration_count, float score,
-                    unsigned mutation_operation_count) {
+                    unsigned mutation_operation_count, unsigned edge_count) {
   unsigned last_percentage = static_cast<int>(static_cast<float>(i - 1) /
                                               (iteration_count - 1) * 10.f);
   unsigned percentage =
@@ -58,7 +81,8 @@ void ReportProgress(unsigned i, unsigned iteration_count, float score,
   BOOST_LOG_TRIVIAL(info) << "OptimizeTopology() " << percentage * 10
                           << " % current score " << score
                           << ", mutation operation count "
-                          << mutation_operation_count;
+                          << mutation_operation_count << ", edge count "
+                          << edge_count;
 }
 
 Topology ToResultTopology(CostMap const &cost_map, Topology const &original) {
@@ -91,32 +115,40 @@ OptimizationResult OptimizeTopology(Topology const &topology,
                                     std::default_random_engine *random_engine) {
   CostMap cost_map = CreateCostMapForTopology(topology);
   EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, random_engine);
-  unsigned source_sample_count = SourceSampleCount(topology);
   SourcePopulationSampler source_population(topology);
 
+  CostMap best_cost_map = cost_map;
   float best_score = EvaluateObjective(topology, cost_map, source_population);
+
   for (unsigned i = 0; i < iteration_count; ++i) {
     unsigned operation_count =
         MutationOperationCountAt(i, iteration_count, cost_map);
-    ReportProgress(i, iteration_count, best_score, operation_count);
-
-    Mutation mutation = edge_set_state.Mutate(operation_count);
+    float prob_add = i == 0 ? .0f : .5f;
+    Mutation mutation = edge_set_state.Mutate(operation_count, prob_add);
     RevertibleMutation revertible(std::move(mutation), cost_map);
     ApplyMutation(revertible, topology, &cost_map);
 
     float score = EvaluateObjective(topology, cost_map, source_population);
-    if (score <= best_score) {
+    ReportProgress(i, iteration_count, score, operation_count,
+                   boost::num_edges(cost_map));
+
+    if (!AcceptMutation(score, best_score, i, iteration_count, random_engine)) {
       RevertMutation(revertible, &cost_map);
       edge_set_state.Revert();
       continue;
     }
 
+    if (score <= best_score) {
+      continue;
+    }
+
+    best_cost_map = cost_map;
     best_score = score;
   }
 
   return OptimizationResult{
-      .topology = ToResultTopology(cost_map, topology),
-      .score = best_score,
+      .topology = ToResultTopology(best_cost_map, topology),
+      .score = EvaluateObjective(topology, best_cost_map, source_population),
   };
 }
 
