@@ -69,9 +69,15 @@ add_test(procedural_probing_topology_init_test
          procedural/probing/topology/init_test.cpp)
 add_test(procedural_probing_topology_mutation_test 
          procedural/probing/topology/mutation_test.cpp)
+add_test(procedural_probing_topology_mutation_regularity_test 
+         procedural/probing/topology/mutation_regularity_test.cpp)
 add_test(procedural_probing_topology_objective_test 
          procedural/probing/topology/objective_test.cpp)
+add_test(procedural_probing_topology_objective_regularity_test 
+         procedural/probing/topology/objective_regularity_test.cpp)
 add_test(procedural_probing_topology_optimizer_test 
          procedural/probing/topology/optimizer_test.cpp)
+add_test(procedural_probing_topology_optimize_regularity_test 
+         procedural/probing/topology/optimize_regularity_test.cpp)
 add_test(procedural_probing_topology_sampler_test 
          procedural/probing/topology/sampler_test.cpp)

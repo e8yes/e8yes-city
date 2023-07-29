@@ -31,10 +31,10 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kPedestrianCrossingTimeSeconds = 0.0f;
-float const kUTurnWaitTimeSeconds = 20.0f;
-float const k3WayIntersectionWaitTimeSeconds = 20.0f;
-float const k4WayIntersectionWaitTimeSeconds = 45.0f;
+float const kPedestrianCrossingTimeSeconds = 10.0f;
+float const kUTurnWaitTimeSeconds = 60.0f;
+float const k3WayIntersectionWaitTimeSeconds = 50.0f;
+float const k4WayIntersectionWaitTimeSeconds = 60.0f;
 float const kIntersectionWaitTimeSecondsPerWay = 50.0f;
 
 float const kMinSpeedMetersPerSecond = 8.33f;
@@ -58,6 +58,7 @@ float EstimateAverageSpeed(float local_population) {
 float EstimateAverageWaitTime(unsigned intersection_size) {
   switch (intersection_size) {
   case 0:
+    return kUTurnWaitTimeSeconds;
   case 1:
     return kUTurnWaitTimeSeconds;
   case 2:

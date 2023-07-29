@@ -30,18 +30,10 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kInitialMutationRatio = 0.1f;
-
-unsigned MutationOperationCountAt(unsigned i, unsigned iteration_count,
-                                  Topology const &topology) {
-  float mutation_ratio =
-      (1 - static_cast<float>(i) / iteration_count) * kInitialMutationRatio;
-  return std::max(
-      1U, static_cast<unsigned>(boost::num_edges(topology) * mutation_ratio));
-}
+unsigned const kMutationCount = 3;
 
 void ReportProgress(unsigned i, unsigned iteration_count, float score,
-                    unsigned mutation_operation_count) {
+                    unsigned edge_count) {
   unsigned last_percentage = static_cast<int>(static_cast<float>(i - 1) /
                                               (iteration_count - 1) * 10.f);
   unsigned percentage =
@@ -50,10 +42,9 @@ void ReportProgress(unsigned i, unsigned iteration_count, float score,
     return;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "OptimizeTopology() " << percentage * 10
-                          << " % current score " << score
-                          << ", mutation operation count "
-                          << mutation_operation_count;
+  BOOST_LOG_TRIVIAL(info) << "OptimizeRegularity() " << percentage * 10
+                          << " % current score " << score << ", edge count "
+                          << edge_count;
 }
 
 } // namespace
@@ -64,28 +55,26 @@ OptimizeRegularity(Topology const &topology, unsigned iteration_count,
   EdgeSetState edge_set_state = CreateEdgeSetStateFor(topology, random_engine);
   RegularityScoreMap score_map = CreateRegularityScoreMapFor(topology);
 
-  float current_score = EvaluateRegularityObjective(score_map);
-  Topology current_result = topology;
-  float best_score = current_score;
-  Topology best_result = current_result;
+  float best_score = EvaluateRegularityObjective(score_map);
+  Topology best_result = topology;
 
   for (unsigned i = 0; i < iteration_count; ++i) {
-    unsigned operation_count =
-        MutationOperationCountAt(i, iteration_count, topology);
-    ReportProgress(i, iteration_count, best_score, operation_count);
+    unsigned operation_count = kMutationCount;
+    ReportProgress(i, iteration_count,
+                   best_score / boost::num_vertices(topology),
+                   boost::num_edges(best_result));
 
     Mutation mutation = edge_set_state.Mutate(operation_count);
     RevertibleRegularityMutation revertible(std::move(mutation), score_map,
-                                            current_score);
-    current_score = ApplyMutation(revertible, &current_result, &score_map);
-    if (current_score < best_score) {
-      current_score = RevertMutation(revertible, &current_result, &score_map);
-      edge_set_state.Revert();
+                                            best_score);
+    float new_score = ApplyMutation(revertible, &best_result, &score_map);
+    if (new_score >= best_score) {
+      best_score = new_score;
       continue;
     }
 
-    best_score = current_score;
-    best_result = current_result;
+    RevertMutation(revertible, &best_result, &score_map);
+    edge_set_state.Revert();
   }
 
   return OptimizeRegularityResult{

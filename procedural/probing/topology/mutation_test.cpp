@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckCostMap) {
                              boost::edge(0, 1, cost_map).first);
   float cost_12 = boost::get(boost::edge_weight_t(), cost_map,
                              boost::edge(1, 2, cost_map).first);
-  BOOST_CHECK_CLOSE(61, cost_01, 1);
-  BOOST_CHECK_CLOSE(110, cost_12, 1);
+  BOOST_CHECK_CLOSE(91, cost_01, 1);
+  BOOST_CHECK_CLOSE(140, cost_12, 1);
 
   RevertMutation(revertible, &cost_map);
   BOOST_CHECK_EQUAL(4, boost::num_edges(cost_map));
@@ -125,9 +125,9 @@ BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckCostMap) {
   float cost_23 = boost::get(boost::edge_weight_t(), cost_map,
                              boost::edge(2, 3, cost_map).first);
   BOOST_CHECK_CLOSE(66, cost_01, 1);
-  BOOST_CHECK_CLOSE(145, cost_02, 1);
-  BOOST_CHECK_CLOSE(155, cost_12, 1);
-  BOOST_CHECK_CLOSE(187, cost_23, 1);
+  BOOST_CHECK_CLOSE(125, cost_02, 1);
+  BOOST_CHECK_CLOSE(135, cost_12, 1);
+  BOOST_CHECK_CLOSE(197, cost_23, 1);
 }
 
 BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckCostMap) {
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckCostMap) {
                              boost::edge(0, 2, cost_map).first);
   float cost_12 = boost::get(boost::edge_weight_t(), cost_map,
                              boost::edge(1, 2, cost_map).first);
-  BOOST_CHECK_CLOSE(100, cost_02, 1);
-  BOOST_CHECK_CLOSE(110, cost_12, 1);
+  BOOST_CHECK_CLOSE(130, cost_02, 1);
+  BOOST_CHECK_CLOSE(140, cost_12, 1);
 
   RevertMutation(revertible2, &cost_map);
   BOOST_CHECK_EQUAL(2, boost::num_edges(cost_map));
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckCostMap) {
                              boost::edge(0, 1, cost_map).first);
   cost_12 = boost::get(boost::edge_weight_t(), cost_map,
                        boost::edge(1, 2, cost_map).first);
-  BOOST_CHECK_CLOSE(61, cost_01, 1);
-  BOOST_CHECK_CLOSE(110, cost_12, 1);
+  BOOST_CHECK_CLOSE(91, cost_01, 1);
+  BOOST_CHECK_CLOSE(140, cost_12, 1);
 }
 
 } // namespace

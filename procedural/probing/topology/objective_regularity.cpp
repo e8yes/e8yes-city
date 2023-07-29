@@ -46,17 +46,25 @@ RegularityScore MinimumDissimiarlity(unsigned u, Topology const &topology) {
 
 RegularityScore
 RegularityObjectiveAt2WayIntersection(unsigned u, Topology const &topology) {
-  return 0.8f * MinimumDissimiarlity(u, topology);
+  return 0.9f * MinimumDissimiarlity(u, topology);
 }
 
 RegularityScore
 RegularityObjectiveAt3WayIntersection(unsigned u, Topology const &topology) {
-  return 0.4f + MinimumDissimiarlity(u, topology);
+  float min_dissim = MinimumDissimiarlity(u, topology);
+  if (min_dissim < -.5f) {
+    return -1.f;
+  }
+  return 0.9f + min_dissim;
 }
 
 RegularityScore
 RegularityObjectiveAt4WayIntersection(unsigned u, Topology const &topology) {
-  return 1.0f + MinimumDissimiarlity(u, topology);
+  float min_dissim = MinimumDissimiarlity(u, topology);
+  if (min_dissim < -.5f) {
+    return -1.f;
+  }
+  return 1.f + min_dissim;
 }
 
 } // namespace
@@ -64,8 +72,9 @@ RegularityObjectiveAt4WayIntersection(unsigned u, Topology const &topology) {
 RegularityScore RegularityObjectiveAt(unsigned u, Topology const &topology) {
   switch (boost::degree(u, topology)) {
   case 0:
+    return -1.f;
   case 1:
-    return -1.0f;
+    return -.9f;
   case 2:
     return RegularityObjectiveAt2WayIntersection(u, topology);
   case 3:
@@ -73,7 +82,7 @@ RegularityScore RegularityObjectiveAt(unsigned u, Topology const &topology) {
   case 4:
     return RegularityObjectiveAt4WayIntersection(u, topology);
   default:
-    return -1.2f;
+    return -1.5f;
   }
 }
 
