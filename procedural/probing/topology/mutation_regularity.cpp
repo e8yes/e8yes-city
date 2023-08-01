@@ -16,7 +16,7 @@
 
 #include "procedural/probing/topology/mutation_regularity.hpp"
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/mutation.hpp"
+#include "procedural/probing/topology/edge_set.hpp"
 #include "procedural/probing/topology/objective_regularity.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <cassert>

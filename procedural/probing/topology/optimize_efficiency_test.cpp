@@ -16,7 +16,7 @@
 
 #define BOOST_TEST_MAIN
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/optimizer.hpp"
+#include "procedural/probing/topology/optimize_efficiency.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_CASE(WhenTopologyIsMeshGrid_ThenCheckEdgeCountIsLess) {
   Topology topology = testing::CreateMeshTopology(/*side=*/5, /*scale=*/1e3f,
                                                   /*population=*/4e3);
   std::default_random_engine random_engine(13);
-  OptimizationResult result =
-      OptimizeTopology(topology, /*iteration_count=*/10000, &random_engine);
+  OptimizeEfficiencyResult result =
+      OptimizeEfficiency(topology, /*iteration_count=*/10000, &random_engine);
   BOOST_CHECK_CLOSE(147, result.score, 10);
   BOOST_CHECK_LT(boost::num_edges(result.topology), boost::num_edges(topology));
 }

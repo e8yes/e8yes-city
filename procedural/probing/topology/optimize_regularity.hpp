@@ -31,8 +31,8 @@ struct OptimizeRegularityResult {
   float score;
 };
 
-// It performs combinatorial optimization over the specified topology by hill
-// climbing.
+// It performs combinatorial optimization over the regularity objective on the
+// specified topology by hill climbing.
 OptimizeRegularityResult
 OptimizeRegularity(Topology const &topology, unsigned iteration_count,
                    std::default_random_engine *random_engine);

@@ -17,8 +17,8 @@
 #include "procedural/probing/topology/topology.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/init.hpp"
+#include "procedural/probing/topology/optimize_efficiency.hpp"
 #include "procedural/probing/topology/optimize_regularity.hpp"
-#include "procedural/probing/topology/optimizer.hpp"
 #include "procedural/probing/topology/probe.hpp"
 #include <algorithm>
 #include <random>
@@ -51,11 +51,11 @@ ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
   std::default_random_engine random_engine;
   OptimizeRegularityResult regularized_result = OptimizeRegularity(
       initial_topology, optimization_step_count, &random_engine);
-  OptimizationResult optimization_result =
-      OptimizeTopology(regularized_result.topology,
-                       std::max(1.f, optimization_step_count *
-                                         kEfficiencyOptimizationStepCountRatio),
-                       &random_engine);
+  OptimizeEfficiencyResult optimization_result = OptimizeEfficiency(
+      regularized_result.topology,
+      std::max(1.f,
+               optimization_step_count * kEfficiencyOptimizationStepCountRatio),
+      &random_engine);
   return ProbeTopologyResult{
       .connections = ToProbeConnection(optimization_result.topology),
       .score = optimization_result.score,

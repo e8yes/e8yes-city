@@ -16,12 +16,14 @@
 
 #include "procedural/probing/topology/edge_set.hpp"
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/mutation.hpp"
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <limits>
 #include <random>
+#include <tuple>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace e8 {
@@ -96,6 +98,25 @@ MutationLog::MutationLog(unsigned pending_operation_count,
 
 } // namespace internal
 
+Mutation::Mutation(unsigned num_additions, unsigned num_deletions) {
+  additions.reserve(num_additions);
+  deletions.reserve(num_deletions);
+}
+
+void Mutation::PushAddition(Edge const &edge) {
+  if (deletions.erase(edge) > 0) {
+    return;
+  }
+  additions.insert(edge);
+}
+
+void Mutation::PushDeletion(Edge const &edge) {
+  if (additions.erase(edge) > 0) {
+    return;
+  }
+  deletions.insert(edge);
+}
+
 EdgeSetState::EdgeSetState(std::default_random_engine *random_engine)
     : separator_(0), random_engine_(random_engine) {}
 
@@ -151,16 +172,6 @@ std::vector<Edge> EdgeSetState::DeletedEdges() const {
   std::vector<Edge> result(edges_.size() - separator_);
   std::copy(edges_.begin() + separator_, edges_.end(), result.begin());
   return result;
-}
-
-EdgeSetState CreateEdgeSetStateFor(CostMap const &cost_map,
-                                   std::default_random_engine *random_engine) {
-  EdgeSetState edge_set(random_engine);
-  auto [current, end] = boost::edges(cost_map);
-  for (; current != end; ++current) {
-    edge_set.Add(Edge(current->m_source, current->m_target));
-  }
-  return edge_set;
 }
 
 EdgeSetState CreateEdgeSetStateFor(Topology const &topology,

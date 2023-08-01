@@ -16,8 +16,8 @@
 
 #define BOOST_TEST_MAIN
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/mutation.hpp"
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/mutation_efficiency.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include <boost/test/unit_test.hpp>
 #include <random>
 
@@ -52,15 +52,15 @@ Topology CreateTopology() {
   return topology;
 }
 
-BOOST_AUTO_TEST_CASE(CheckRevertibleMutation) {
+BOOST_AUTO_TEST_CASE(CheckRevertibleEfficiencyMutation) {
   Topology topology = CreateTopology();
-  CostMap cost_map = CreateCostMapForTopology(topology);
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
 
   Mutation mutation(/*num_additions=*/0, /*num_deletions=*/2);
   mutation.deletions.insert(Edge(0, 2));
   mutation.deletions.insert(Edge(2, 3));
 
-  RevertibleMutation revertible(std::move(mutation), cost_map);
+  RevertibleEfficiencyMutation revertible(std::move(mutation), cost_map);
   BOOST_CHECK_EQUAL(0, revertible.mutation.additions.size());
   BOOST_CHECK_EQUAL(2, revertible.mutation.deletions.size());
   BOOST_CHECK(revertible.mutation.deletions.find(Edge(0, 2)) !=
@@ -88,15 +88,15 @@ BOOST_AUTO_TEST_CASE(CheckRevertibleMutation) {
   BOOST_CHECK_EQUAL(cost_23, revertible.deleted_edges[Edge(2, 3)]);
 }
 
-BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckCostMap) {
+BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckEfficiencyCostMap) {
   Topology topology = CreateTopology();
-  CostMap cost_map = CreateCostMapForTopology(topology);
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
 
   Mutation mutation(/*num_additions=*/0, /*num_deletions=*/2);
   mutation.deletions.insert(Edge(0, 2));
   mutation.deletions.insert(Edge(2, 3));
 
-  RevertibleMutation revertible(std::move(mutation), cost_map);
+  RevertibleEfficiencyMutation revertible(std::move(mutation), cost_map);
 
   ApplyMutation(revertible, topology, &cost_map);
   BOOST_CHECK_EQUAL(2, boost::num_edges(cost_map));
@@ -130,20 +130,20 @@ BOOST_AUTO_TEST_CASE(WhenDeleteEdgesAndRevert_ThenCheckCostMap) {
   BOOST_CHECK_CLOSE(197, cost_23, 1);
 }
 
-BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckCostMap) {
+BOOST_AUTO_TEST_CASE(WhenMutateEdgesAndRevert_ThenCheckEfficiencyCostMap) {
   Topology topology = CreateTopology();
-  CostMap cost_map = CreateCostMapForTopology(topology);
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
 
   Mutation mutation(/*num_additions=*/0, /*num_deletions=*/2);
   mutation.deletions.insert(Edge(0, 2));
   mutation.deletions.insert(Edge(2, 3));
-  RevertibleMutation revertible(std::move(mutation), cost_map);
+  RevertibleEfficiencyMutation revertible(std::move(mutation), cost_map);
   ApplyMutation(revertible, topology, &cost_map);
 
   Mutation mutation2(/*num_additions=*/1, /*num_deletions=*/1);
   mutation2.additions.insert(Edge(0, 2));
   mutation2.deletions.insert(Edge(0, 1));
-  RevertibleMutation revertible2(std::move(mutation2), cost_map);
+  RevertibleEfficiencyMutation revertible2(std::move(mutation2), cost_map);
 
   ApplyMutation(revertible2, topology, &cost_map);
   BOOST_CHECK_EQUAL(2, boost::num_edges(cost_map));

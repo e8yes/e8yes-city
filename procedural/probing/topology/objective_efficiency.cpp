@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/sampler.hpp"
 #include <algorithm>
@@ -85,9 +85,10 @@ float EstimateLikelihoodToTravel(float time_cost) {
   return 0.5 * (1 + std::cos(omega * time_cost + phi));
 }
 
-CostMap CreateCostMapWithConnections(Topology const &topology) {
+EfficiencyCostMap
+CreateEfficiencyCostMapWithConnections(Topology const &topology) {
   assert(boost::num_vertices(topology) > 0);
-  CostMap result(boost::num_vertices(topology));
+  EfficiencyCostMap result(boost::num_vertices(topology));
 
   auto [current, end] = boost::edges(topology);
   for (; current != end; ++current) {
@@ -123,7 +124,8 @@ float EstimateTravelTimeCost(unsigned u, unsigned v, Topology const &topology) {
   return 0.5 * (distance / speed_u + distance / speed_v);
 }
 
-float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map) {
+float EstimateWaitTimeCost(unsigned u, unsigned v,
+                           EfficiencyCostMap const &cost_map) {
   assert(u < boost::num_vertices(cost_map));
   assert(v < boost::num_vertices(cost_map));
 
@@ -135,8 +137,8 @@ float TotalTimeCost(float travel_time_cost, float wait_time_cost) {
   return travel_time_cost + wait_time_cost;
 }
 
-CostMap CreateCostMapForTopology(Topology const &topology) {
-  CostMap result = CreateCostMapWithConnections(topology);
+EfficiencyCostMap CreateEfficiencyCostMapForTopology(Topology const &topology) {
+  EfficiencyCostMap result = CreateEfficiencyCostMapWithConnections(topology);
 
   auto [current, end] = boost::edges(result);
   for (; current != end; ++current) {
@@ -158,8 +160,9 @@ CostMap CreateCostMapForTopology(Topology const &topology) {
   return result;
 }
 
-float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
-                        SourceSamplerInterface const &source_sampler) {
+float EvaluateEfficiencyObjective(
+    Topology const &topology, EfficiencyCostMap const &cost_map,
+    SourceSamplerInterface const &source_sampler) {
   assert(boost::num_vertices(topology) == boost::num_vertices(cost_map));
   assert(boost::num_vertices(cost_map) > 0);
 
@@ -167,7 +170,7 @@ float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
   std::vector<float> min_time_costs(boost::num_vertices(cost_map));
   for (auto const &sample : source_sampler.SourceSamples()) {
     assert(sample.source_index < boost::num_vertices(cost_map));
-    CostMap::vertex_descriptor source =
+    EfficiencyCostMap::vertex_descriptor source =
         boost::vertex(sample.source_index, cost_map);
     boost::dijkstra_shortest_paths(cost_map, source,
                                    boost::distance_map(&min_time_costs[0]));

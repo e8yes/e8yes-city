@@ -16,7 +16,7 @@
 
 #include "procedural/probing/topology/init.hpp"
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include "procedural/probing/topology/probe.hpp"
 #include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>

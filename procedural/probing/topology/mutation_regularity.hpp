@@ -17,7 +17,7 @@
 #pragma once
 
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/mutation.hpp"
+#include "procedural/probing/topology/edge_set.hpp"
 #include "procedural/probing/topology/objective_regularity.hpp"
 #include <unordered_map>
 

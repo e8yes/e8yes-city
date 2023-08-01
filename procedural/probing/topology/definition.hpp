@@ -54,15 +54,6 @@ using Topology = boost::adjacency_list<
     /*DirectedS=*/boost::undirectedS, /*VertexProperty=*/VertexProperties,
     /*EdgeProperty=*/StaticEdgeCost>;
 
-// For storing the total edge cost.
-using EdgeCost = boost::property<boost::edge_weight_t, float>;
-
-// Stores the total transportation cost of any two adjacent population probes.
-using CostMap = boost::adjacency_list<
-    /*OutEdgeListS=*/boost::vecS, /*VertexListS=*/boost::vecS,
-    /*DirectedS=*/boost::undirectedS, /*VertexProperty=*/boost::no_property,
-    /*EdgeProperty=*/EdgeCost>;
-
 namespace testing {
 
 // Grid with the structure:
