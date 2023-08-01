@@ -26,20 +26,19 @@ from typing import List
 class ProbeConnection:
     """In the order of the specified probe array, this indicate two probes at the following indices should be connected bidirectionally.
     """
-
     src_probe_index: int
     dst_probe_index: int
 
 
 @dataclass
 class ProbeTopology:
-    """_summary_
+    """Returns by ComputePopulationProbeTopology().
     """
 
     # The unique connections between the population probes.
     connections: List[ProbeConnection]
 
-    #
+    # The objective score of the connection. It estimates the average number of residents transported at the probes.
     score: float
 
 
