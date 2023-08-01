@@ -76,5 +76,10 @@ private:
 EdgeSetState CreateEdgeSetStateFor(CostMap const &cost_map,
                                    std::default_random_engine *random_engine);
 
+// Copies the edge set of the topology to the EdgeSetState object and sets the
+// state of the edges to active.
+EdgeSetState CreateEdgeSetStateFor(Topology const &topology,
+                                   std::default_random_engine *random_engine);
+
 } // namespace procedural
 } // namespace e8

@@ -17,14 +17,18 @@
 #include "procedural/probing/topology/topology.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/init.hpp"
+#include "procedural/probing/topology/optimize_regularity.hpp"
 #include "procedural/probing/topology/optimizer.hpp"
 #include "procedural/probing/topology/probe.hpp"
+#include <algorithm>
 #include <random>
 #include <vector>
 
 namespace e8 {
 namespace procedural {
 namespace {
+
+float const kEfficiencyOptimizationStepCountRatio = 1e-2f;
 
 std::vector<ProbeConnection> ToProbeConnection(Topology const &topology) {
   auto [edge_it, _] = boost::edges(topology);
@@ -45,8 +49,13 @@ ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
                      unsigned optimization_step_count) {
   Topology initial_topology = CreateDelaunayTopology(probes);
   std::default_random_engine random_engine;
-  OptimizationResult optimization_result = OptimizeTopology(
+  OptimizeRegularityResult regularized_result = OptimizeRegularity(
       initial_topology, optimization_step_count, &random_engine);
+  OptimizationResult optimization_result =
+      OptimizeTopology(regularized_result.topology,
+                       std::max(1.f, optimization_step_count *
+                                         kEfficiencyOptimizationStepCountRatio),
+                       &random_engine);
   return ProbeTopologyResult{
       .connections = ToProbeConnection(optimization_result.topology),
       .score = optimization_result.score,
