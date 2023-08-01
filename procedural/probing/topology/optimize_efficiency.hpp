@@ -23,7 +23,7 @@ namespace e8 {
 namespace procedural {
 
 // Returns by OptimizeToplogy().
-struct OptimizationResult {
+struct OptimizeEfficiencyResult {
   // The optimized topology.
   Topology topology;
 
@@ -31,11 +31,11 @@ struct OptimizationResult {
   float score;
 };
 
-// It performs combinatorial optimization over the specified topology by hill
-// climbing.
-OptimizationResult OptimizeTopology(Topology const &topology,
-                                    unsigned iteration_count,
-                                    std::default_random_engine *random_engine);
+// It performs combinatorial optimization over the efficiency objective on the
+// specified topology by hill climbing.
+OptimizeEfficiencyResult
+OptimizeEfficiency(Topology const &topology, unsigned iteration_count,
+                   std::default_random_engine *random_engine);
 
 } // namespace procedural
 } // namespace e8

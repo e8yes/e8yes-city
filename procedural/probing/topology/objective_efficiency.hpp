@@ -24,6 +24,15 @@
 namespace e8 {
 namespace procedural {
 
+// For storing the total edge cost.
+using EfficiencyCost = boost::property<boost::edge_weight_t, float>;
+
+// Stores the total transportation cost of any two adjacent population probes.
+using EfficiencyCostMap = boost::adjacency_list<
+    /*OutEdgeListS=*/boost::vecS, /*VertexListS=*/boost::vecS,
+    /*DirectedS=*/boost::undirectedS, /*VertexProperty=*/boost::no_property,
+    /*EdgeProperty=*/EfficiencyCost>;
+
 // Estimates the number of seconds needed to travel from u to v, or in the
 // opposite direction, based on the size of the local population at u and v.
 // This estimate assumes there is a direct connection between u and v, and is
@@ -32,7 +41,8 @@ float EstimateTravelTimeCost(unsigned u, unsigned v, Topology const &topology);
 
 // Estimates the number of seconds spent in crossing the intersections at u and
 // v. It changes along with any topological modification.
-float EstimateWaitTimeCost(unsigned u, unsigned v, CostMap const &cost_map);
+float EstimateWaitTimeCost(unsigned u, unsigned v,
+                           EfficiencyCostMap const &cost_map);
 
 // Calculate the total edge cost, measured in seconds, based on the travel and
 // wait time.
@@ -40,7 +50,7 @@ float TotalTimeCost(float travel_time_cost, float wait_time_cost);
 
 // Creates a cost map from the specified topology. The static edge cost of the
 // topology needs not be initialized.
-CostMap CreateCostMapForTopology(Topology const &topology);
+EfficiencyCostMap CreateEfficiencyCostMapForTopology(Topology const &topology);
 
 // The full objective is computed as follow,
 // L_{topology} = \frac{1}{|V|} \sum_{s,t \in V} C(s) f_X(t)
@@ -64,8 +74,9 @@ CostMap CreateCostMapForTopology(Topology const &topology);
 // of sources, bringing the complexity down to O(|S||E|log(|E|)), where S is the
 // sample set. Note, the sampled objective is an unbiased estimate, therefore
 // the values amongst different sample sets can be compared.
-float EvaluateObjective(Topology const &topology, CostMap const &cost_map,
-                        SourceSamplerInterface const &source_sampler);
+float EvaluateEfficiencyObjective(Topology const &topology,
+                                  EfficiencyCostMap const &cost_map,
+                                  SourceSamplerInterface const &source_sampler);
 
 } // namespace procedural
 } // namespace e8

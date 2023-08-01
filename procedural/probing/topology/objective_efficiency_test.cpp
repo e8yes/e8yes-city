@@ -16,7 +16,7 @@
 
 #define BOOST_TEST_MAIN
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include "procedural/probing/topology/sampler.hpp"
 #include <boost/test/unit_test.hpp>
 #include <eigen3/Eigen/Core>
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(WhenPopulationIsDense_ThenCheckTravelTime) {
 }
 
 BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
-  CostMap cost_map(4);
+  EfficiencyCostMap cost_map(4);
   boost::add_edge(0, 1, cost_map);
   boost::add_edge(0, 2, cost_map);
   boost::add_edge(2, 3, cost_map);
@@ -73,7 +73,8 @@ BOOST_AUTO_TEST_CASE(CheckWaitTimeCost) {
                     EstimateWaitTimeCost(2, 0, cost_map));
 }
 
-BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
+BOOST_AUTO_TEST_CASE(
+    WhenPopulationDensityIsFixed_ThenCheckEfficiencyCostMapForTopology) {
   // Structure:
   // 1----
   // |   |
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
   boost::add_edge(1, 2, topology);
   boost::add_edge(2, 3, topology);
 
-  CostMap cost_map = CreateCostMapForTopology(topology);
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
 
   float cost_01 = boost::get(boost::edge_weight_t(), cost_map,
                              boost::edge(0, 1, cost_map).first);
@@ -120,10 +121,10 @@ BOOST_AUTO_TEST_CASE(WhenPopulationDensityIsFixed_ThenCheckCostMapForTopology) {
 BOOST_AUTO_TEST_CASE(WhenEvaluateFullObjective_ThenCheckScore) {
   Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
                                                   /*population=*/4e3);
-  CostMap cost_map = CreateCostMapForTopology(topology);
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
 
   SourcePopulationSampler sampler(topology);
-  float objective = EvaluateObjective(topology, cost_map, sampler);
+  float objective = EvaluateEfficiencyObjective(topology, cost_map, sampler);
   BOOST_CHECK_CLOSE(112, objective, 1);
 }
 

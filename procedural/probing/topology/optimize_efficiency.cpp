@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology/optimizer.hpp"
+#include "procedural/probing/topology/optimize_efficiency.hpp"
 #include "procedural/probing/topology/edge_set.hpp"
-#include "procedural/probing/topology/mutation.hpp"
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/mutation_efficiency.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include <algorithm>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/log/trivial.hpp>
@@ -49,7 +49,8 @@ void ReportProgress(unsigned i, unsigned iteration_count, float score,
                           << edge_count;
 }
 
-Topology ToResultTopology(CostMap const &cost_map, Topology const &original) {
+Topology ToResultTopology(EfficiencyCostMap const &cost_map,
+                          Topology const &original) {
   assert(boost::num_vertices(cost_map) == boost::num_vertices(original));
 
   Topology result(boost::num_vertices(cost_map));
@@ -74,15 +75,16 @@ Topology ToResultTopology(CostMap const &cost_map, Topology const &original) {
 
 } // namespace
 
-OptimizationResult OptimizeTopology(Topology const &topology,
-                                    unsigned iteration_count,
-                                    std::default_random_engine *random_engine) {
-  CostMap cost_map = CreateCostMapForTopology(topology);
-  EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, random_engine);
+OptimizeEfficiencyResult
+OptimizeEfficiency(Topology const &topology, unsigned iteration_count,
+                   std::default_random_engine *random_engine) {
+  EfficiencyCostMap cost_map = CreateEfficiencyCostMapForTopology(topology);
+  EdgeSetState edge_set_state = CreateEdgeSetStateFor(topology, random_engine);
   SourcePopulationSampler source_population(topology);
 
-  CostMap best_cost_map = cost_map;
-  float best_score = EvaluateObjective(topology, cost_map, source_population);
+  EfficiencyCostMap best_cost_map = cost_map;
+  float best_score =
+      EvaluateEfficiencyObjective(topology, cost_map, source_population);
 
   for (unsigned i = 0; i < iteration_count; ++i) {
     unsigned operation_count = kMutationOperationCount;
@@ -90,10 +92,11 @@ OptimizationResult OptimizeTopology(Topology const &topology,
                    boost::num_edges(cost_map));
 
     Mutation mutation = edge_set_state.Mutate(operation_count);
-    RevertibleMutation revertible(std::move(mutation), cost_map);
+    RevertibleEfficiencyMutation revertible(std::move(mutation), cost_map);
     ApplyMutation(revertible, topology, &cost_map);
 
-    float score = EvaluateObjective(topology, cost_map, source_population);
+    float score =
+        EvaluateEfficiencyObjective(topology, cost_map, source_population);
     if (score < best_score) {
       RevertMutation(revertible, &cost_map);
       edge_set_state.Revert();
@@ -104,9 +107,10 @@ OptimizationResult OptimizeTopology(Topology const &topology,
     best_score = score;
   }
 
-  return OptimizationResult{
+  return OptimizeEfficiencyResult{
       .topology = ToResultTopology(best_cost_map, topology),
-      .score = EvaluateObjective(topology, best_cost_map, source_population),
+      .score = EvaluateEfficiencyObjective(topology, best_cost_map,
+                                           source_population),
   };
 }
 

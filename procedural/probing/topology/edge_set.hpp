@@ -17,8 +17,9 @@
 #pragma once
 
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/mutation.hpp"
+#include <functional>
 #include <random>
+#include <tuple>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -37,6 +38,41 @@ struct MutationLog {
 };
 
 } // namespace internal
+
+// Since the mutation operations apply solely on the edge set, it's useful to
+// define the components that define an edge.
+using EdgeSrcIndex = unsigned;
+using EdgeDstIndex = unsigned;
+using Edge = std::tuple<EdgeSrcIndex, EdgeDstIndex>;
+
+struct EdgeHash {
+  auto operator()(Edge const &edge) const -> size_t {
+    return std::hash<EdgeSrcIndex>{}(std::get<0>(edge)) ^
+           std::hash<EdgeDstIndex>{}(std::get<1>(edge));
+  }
+};
+
+// A mutation is the set of edges to be added to/deleted from the current edge
+// set.
+struct Mutation {
+  Mutation(unsigned num_additions, unsigned num_deletions);
+  Mutation(Mutation &) = default;
+  Mutation(Mutation &&) = default;
+
+  // Adds an edge to the pending addition set if it has not been planned for
+  // deletion. Otherwise, it removes the edge from the pending deletion set.
+  void PushAddition(Edge const &edge);
+
+  // Adds an edge to the pending deletion set if it has not been planned for
+  // addition. Otherwise, it removes the edge from the pending addition set.
+  void PushDeletion(Edge const &edge);
+
+  // The set of edges to be added.
+  std::unordered_set<Edge, EdgeHash> additions;
+
+  // The set of edges to be deleted.
+  std::unordered_set<Edge, EdgeHash> deletions;
+};
 
 // Keeps track of the state of each edge in the edge set. The state of an edge
 // can either be active or deleted.
@@ -70,11 +106,6 @@ private:
   internal::MutationLog log_;
   std::default_random_engine *const random_engine_;
 };
-
-// Copies the edge set of the cost map to the EdgeSetState object and sets the
-// state of the edges to active.
-EdgeSetState CreateEdgeSetStateFor(CostMap const &cost_map,
-                                   std::default_random_engine *random_engine);
 
 // Copies the edge set of the topology to the EdgeSetState object and sets the
 // state of the edges to active.

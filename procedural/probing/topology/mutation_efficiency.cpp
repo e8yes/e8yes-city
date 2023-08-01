@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology/mutation.hpp"
+#include "procedural/probing/topology/mutation_efficiency.hpp"
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/objective.hpp"
+#include "procedural/probing/topology/edge_set.hpp"
+#include "procedural/probing/topology/objective_efficiency.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <cassert>
 #include <functional>
@@ -34,10 +35,11 @@ Edge Reverse(Edge const &edge) {
   return Edge(std::get<1>(edge), std::get<0>(edge));
 }
 
-void AddAffectedEdge(
-    Edge const &affected_edge, CostMap const &cost_map,
-    std::unordered_set<Edge, EdgeHash> const &exclusions,
-    std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
+void AddAffectedEdge(Edge const &affected_edge,
+                     EfficiencyCostMap const &cost_map,
+                     std::unordered_set<Edge, EdgeHash> const &exclusions,
+                     std::unordered_map<Edge, EdgeEfficiencyCostValue, EdgeHash>
+                         *affected_edges) {
   if (exclusions.find(affected_edge) != exclusions.end() ||
       exclusions.find(Reverse(affected_edge)) != exclusions.end()) {
     // The edge should be excluded.
@@ -56,10 +58,10 @@ void AddAffectedEdge(
   affected_edges->insert(std::make_pair(affected_edge, cost_value));
 }
 
-void EdgesAffectedBy(
-    unsigned vertex, CostMap const &cost_map,
-    std::unordered_set<Edge, EdgeHash> const &exclusions,
-    std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
+void EdgesAffectedBy(unsigned vertex, EfficiencyCostMap const &cost_map,
+                     std::unordered_set<Edge, EdgeHash> const &exclusions,
+                     std::unordered_map<Edge, EdgeEfficiencyCostValue, EdgeHash>
+                         *affected_edges) {
   auto [current, end] = boost::adjacent_vertices(vertex, cost_map);
   for (; current != end; ++current) {
     Edge affected_edge(vertex, *current);
@@ -67,11 +69,11 @@ void EdgesAffectedBy(
   }
 }
 
-void EdgesAffectedBy(
-    std::unordered_set<Edge, EdgeHash> const &mutated_edges,
-    std::unordered_set<Edge, EdgeHash> const &exclusions,
-    CostMap const &cost_map,
-    std::unordered_map<Edge, EdgeCostValue, EdgeHash> *affected_edges) {
+void EdgesAffectedBy(std::unordered_set<Edge, EdgeHash> const &mutated_edges,
+                     std::unordered_set<Edge, EdgeHash> const &exclusions,
+                     EfficiencyCostMap const &cost_map,
+                     std::unordered_map<Edge, EdgeEfficiencyCostValue, EdgeHash>
+                         *affected_edges) {
   for (auto const &mutated_edge : mutated_edges) {
     EdgesAffectedBy(std::get<0>(mutated_edge), cost_map, exclusions,
                     affected_edges);
@@ -81,7 +83,7 @@ void EdgesAffectedBy(
 }
 
 void UpdateCostFor(Edge const &edge, Topology const &topology,
-                   CostMap *cost_map) {
+                   EfficiencyCostMap *cost_map) {
   auto [topology_edge, topology_existence] =
       boost::edge(std::get<0>(edge), std::get<1>(edge), topology);
   assert(topology_existence);
@@ -99,27 +101,8 @@ void UpdateCostFor(Edge const &edge, Topology const &topology,
 
 } // namespace
 
-Mutation::Mutation(unsigned num_additions, unsigned num_deletions) {
-  additions.reserve(num_additions);
-  deletions.reserve(num_deletions);
-}
-
-void Mutation::PushAddition(Edge const &edge) {
-  if (deletions.erase(edge) > 0) {
-    return;
-  }
-  additions.insert(edge);
-}
-
-void Mutation::PushDeletion(Edge const &edge) {
-  if (additions.erase(edge) > 0) {
-    return;
-  }
-  deletions.insert(edge);
-}
-
-RevertibleMutation::RevertibleMutation(Mutation &&other,
-                                       CostMap const &cost_map)
+RevertibleEfficiencyMutation::RevertibleEfficiencyMutation(
+    Mutation &&other, EfficiencyCostMap const &cost_map)
     : mutation(std::move(other)) {
   // Saves the cost value for edges that are going to be deleted.
   deleted_edges.reserve(mutation.deletions.size());
@@ -140,8 +123,8 @@ RevertibleMutation::RevertibleMutation(Mutation &&other,
                   cost_map, &affected_edges);
 }
 
-void ApplyMutation(RevertibleMutation const &revertible,
-                   Topology const &topology, CostMap *cost_map) {
+void ApplyMutation(RevertibleEfficiencyMutation const &revertible,
+                   Topology const &topology, EfficiencyCostMap *cost_map) {
   // Updates the connections.
   for (auto const &edge_to_add : revertible.mutation.additions) {
     boost::add_edge(std::get<0>(edge_to_add), std::get<1>(edge_to_add),
@@ -161,7 +144,8 @@ void ApplyMutation(RevertibleMutation const &revertible,
   }
 }
 
-void RevertMutation(RevertibleMutation const &revertible, CostMap *cost_map) {
+void RevertMutation(RevertibleEfficiencyMutation const &revertible,
+                    EfficiencyCostMap *cost_map) {
   // Removes added edges.
   for (auto const &added_edge : revertible.mutation.additions) {
     boost::remove_edge(std::get<0>(added_edge), std::get<1>(added_edge),

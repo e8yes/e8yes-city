@@ -17,8 +17,6 @@
 #define BOOST_TEST_MAIN
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/edge_set.hpp"
-#include "procedural/probing/topology/mutation.hpp"
-#include "procedural/probing/topology/objective.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/unit_test.hpp>
 #include <random>
@@ -29,7 +27,8 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-bool ContainsAllEdges(std::vector<Edge> const &edges, CostMap const &cost_map) {
+bool ContainsAllEdges(std::vector<Edge> const &edges,
+                      Topology const &topology) {
   std::unordered_set<Edge, EdgeHash> edge_set(edges.size());
   for (auto const &edge : edges) {
     edge_set.insert(edge);
@@ -39,7 +38,7 @@ bool ContainsAllEdges(std::vector<Edge> const &edges, CostMap const &cost_map) {
     return false;
   }
 
-  auto [current, end] = boost::edges(cost_map);
+  auto [current, end] = boost::edges(topology);
   for (; current != end; ++current) {
     if (edge_set.find(std::make_tuple(current->m_source, current->m_target)) ==
         edge_set.end()) {
@@ -53,9 +52,8 @@ bool ContainsAllEdges(std::vector<Edge> const &edges, CostMap const &cost_map) {
 BOOST_AUTO_TEST_CASE(WhenAtOriginalState_ThenCheckActiveAndDeletedEdges) {
   Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
                                                   /*population=*/4e3);
-  CostMap cost_map = CreateCostMapForTopology(topology);
   std::default_random_engine random_engine;
-  EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, &random_engine);
+  EdgeSetState edge_set_state = CreateEdgeSetStateFor(topology, &random_engine);
 
   std::vector<Edge> active_edges = edge_set_state.ActiveEdges();
   std::vector<Edge> deleted_edges = edge_set_state.DeletedEdges();
@@ -67,9 +65,8 @@ BOOST_AUTO_TEST_CASE(WhenAtOriginalState_ThenCheckActiveAndDeletedEdges) {
 BOOST_AUTO_TEST_CASE(WhenFollowsOneMutation_ThenCheckActiveAndDeletedEdges) {
   Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
                                                   /*population=*/4e3);
-  CostMap cost_map = CreateCostMapForTopology(topology);
   std::default_random_engine random_engine;
-  EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, &random_engine);
+  EdgeSetState edge_set_state = CreateEdgeSetStateFor(topology, &random_engine);
 
   Mutation mutation = edge_set_state.Mutate(/*operation_count=*/1);
   BOOST_CHECK(mutation.additions.empty() && !mutation.deletions.empty());
@@ -83,9 +80,8 @@ BOOST_AUTO_TEST_CASE(WhenFollowsOneMutation_ThenCheckActiveAndDeletedEdges) {
 BOOST_AUTO_TEST_CASE(WhenMutateAndRevertToGoal_ThenCheckActiveAndDeletedEdges) {
   Topology topology = testing::CreateGridTopology(/*side=*/5, /*scale=*/1e3f,
                                                   /*population=*/4e3);
-  CostMap cost_map = CreateCostMapForTopology(topology);
   std::default_random_engine random_engine;
-  EdgeSetState edge_set_state = CreateEdgeSetStateFor(cost_map, &random_engine);
+  EdgeSetState edge_set_state = CreateEdgeSetStateFor(topology, &random_engine);
 
   // Mutate to empty.
   while (!edge_set_state.ActiveEdges().empty()) {
@@ -99,7 +95,7 @@ BOOST_AUTO_TEST_CASE(WhenMutateAndRevertToGoal_ThenCheckActiveAndDeletedEdges) {
   std::vector<Edge> deleted_edges = edge_set_state.DeletedEdges();
   BOOST_CHECK_EQUAL(active_edges.size(), 0);
   BOOST_CHECK_EQUAL(deleted_edges.size(), 24);
-  BOOST_CHECK(ContainsAllEdges(deleted_edges, cost_map));
+  BOOST_CHECK(ContainsAllEdges(deleted_edges, topology));
 
   // Mutate to full.
   while (!edge_set_state.DeletedEdges().empty()) {
@@ -113,7 +109,7 @@ BOOST_AUTO_TEST_CASE(WhenMutateAndRevertToGoal_ThenCheckActiveAndDeletedEdges) {
   deleted_edges = edge_set_state.DeletedEdges();
   BOOST_CHECK_EQUAL(active_edges.size(), 24);
   BOOST_CHECK_EQUAL(deleted_edges.size(), 0);
-  BOOST_CHECK(ContainsAllEdges(active_edges, cost_map));
+  BOOST_CHECK(ContainsAllEdges(active_edges, topology));
 }
 
 } // namespace
