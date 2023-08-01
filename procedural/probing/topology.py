@@ -69,14 +69,14 @@ def _ToProbeTopology(
 def ComputePopulationProbeTopology(
         probes: List[PopulationProbe],
         optimization_step_count: int) -> ProbeTopology:
-    """_summary_
+    """It computes the connections amongst the specified population probes such that the transportation between any two probes is reasonably efficient.
 
     Args:
-        probes (List[PopulationProbe]): _description_
-        optimization_step_count (int): _description_
+        probes (List[PopulationProbe]): The population probes to be connected.
+        optimization_step_count (int): The number of optimization steps to take to produce the topology.
 
     Returns:
-        ProbeTopology: _description_
+        ProbeTopology: See the above data class.
     """
     internal_probes = _ToInternal(probes)
     internal_result = e8citydll.ComputeProbeTopology(
