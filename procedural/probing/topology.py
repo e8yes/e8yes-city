@@ -24,13 +24,10 @@ from typing import List
 
 @dataclass
 class ProbeConnection:
-    """_summary_
+    """In the order of the specified probe array, this indicate two probes at the following indices should be connected bidirectionally.
     """
 
-    #
     src_probe_index: int
-
-    #
     dst_probe_index: int
 
 
