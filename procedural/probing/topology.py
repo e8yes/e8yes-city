@@ -36,7 +36,7 @@ class ProbeTopology:
     """_summary_
     """
 
-    #
+    # The unique connections between the population probes.
     connections: List[ProbeConnection]
 
     #
