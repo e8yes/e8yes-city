@@ -5,7 +5,8 @@ project(e8citydll)
 find_package(Boost REQUIRED COMPONENTS graph log unit_test_framework)
 find_package(CGAL REQUIRED)
 find_package(Eigen3 REQUIRED NO_MODULE)
-find_package(pybind11 REQUIRED)
+find_package(Protobuf REQUIRED NO_MODULE)
+find_package(Pybind11 REQUIRED)
 
 set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
 set(PYBIND11_PYTHON_VERSION 3.11)
@@ -22,6 +23,13 @@ elseif(${CMAKE_BUILD_TYPE} STREQUAL Release)
 endif()
 
 set(SRCS
+    intermediate_representation/city.pb.cc
+    intermediate_representation/compass.pb.cc
+    intermediate_representation/curve.pb.cc
+    intermediate_representation/intersection.pb.cc
+    intermediate_representation/segment.pb.cc
+    intermediate_representation/space.pb.cc
+    intermediate_representation/street.pb.cc
     procedural/probing/topology/definition.cpp
     procedural/probing/topology/edge_set.cpp
     procedural/probing/topology/init.cpp
@@ -40,7 +48,8 @@ set(LIBS
     Boost::graph
     Boost::log
     CGAL::CGAL
-    Eigen3::Eigen)
+    Eigen3::Eigen
+    ${Protobuf_LIBRARIES})
 
 # Main Pybind11 module.
 pybind11_add_module(${PROJECT_NAME} ${SRCS} ${PYBIND_SRCS})

@@ -1,0 +1,66 @@
+// e8City
+// Copyright (C) 2023 e8yes
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package e8;
+
+import "intermediate_representation/compass.proto";
+import "intermediate_representation/segment.proto";
+import "intermediate_representation/space.proto";
+import "intermediate_representation/street.proto";
+
+//
+message StreetCut {
+    //
+    Segment3 cut_line = 1;
+
+    //
+    Vector3 inward_facing = 2;
+
+    //
+    bool pedestrian_crossing = 3;
+
+    //
+    bool traffic_light = 4;
+
+    //
+    bool allow_left_turn = 5;
+
+    //
+    bool allow_right_turn = 6;
+
+    //
+    bool unprotected_left_turn = 7;
+
+    //
+    bool unprotected_right_turn = 8;
+}
+
+//
+message StandardIntersection {
+    //
+    Point3 center = 1;
+
+    //
+    repeated Street streets = 2;
+
+    //
+    repeated StreetCut street_cuts = 3;
+
+    //
+    repeated CompassDirection street_directions = 4;
+}

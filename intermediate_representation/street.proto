@@ -1,0 +1,96 @@
+// e8City
+// Copyright (C) 2023 e8yes
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package e8;
+
+import "intermediate_representation/curve.proto";
+
+//
+message TrafficMarking {
+    //
+    enum MarkingType {
+        STREET_MARKING_TYPE_UNKNOWN = 0;
+        ARROW_STRAIGHT = 1;
+        ARROW_STRAIGHT_OR_LEFT_TURN = 2;
+        ARROW_STRAIGHT_OR_RIGHT_TURN = 3;
+        ARROW_LEFT_TURN = 4;
+        ARROW_LEFT_TURN_OR_U_TURN = 5;
+        ARROW_RIGHT_TURN = 6;
+        DASHED_WHITE = 7;
+        HOLLOW = 8;
+        SOLID_WHITE = 9;
+        SOLID_YELLOW = 10;
+    }
+
+    //
+    ArcInterval arc_interval = 1;
+
+    //
+    MarkingType marking_type = 2;
+}
+
+//
+message MarkedCurve {
+    //
+    CatmulRomCurve3 curve = 1;
+
+    //
+    repeated TrafficMarking markings = 2;
+}
+
+//
+message TrafficLane {
+    //
+    int32 left_curve_index = 1;
+
+    //
+    int32 center_curve_index = 2;
+
+    //
+    int32 right_curve_index = 3;
+
+    //
+    repeated ArcInterval lane_change_windows = 4;
+
+    //
+    map<int32, TrafficLane> left_adjacent_lanes = 5;
+
+    //
+    map<int32, TrafficLane> right_adjacent_lanes = 6;
+}
+
+//
+message TrafficWay {
+    //
+    repeated MarkedCurve marked_curves = 1;
+
+    //
+    repeated TrafficLane root_lanes = 2;
+}
+
+//
+message Street {
+    //
+    CatmulRomCurve3 center_curve = 1;
+
+    //
+    TrafficLane forward = 2;
+
+    //
+    TrafficLane backward = 3;
+}

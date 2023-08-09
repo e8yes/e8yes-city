@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Compiles protocol buffer definitions.
+protoc --cpp_out=. --python_out=. --proto_path=. `find . -name '*.proto'`
+
 # Builds and tests C++ binaries.
 mkdir -p bin
 pushd bin
