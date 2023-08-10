@@ -20,23 +20,23 @@ package e8;
 
 import "intermediate_representation/space.proto";
 
-//
+// Represents a 3D catmul-rom cubic spline curve.
 message CatmulRomCurve3 {
-    //
+    // The ordered set of points to interpolate across.
     repeated Point3 control_points = 1;
 
-    //
+    // Optional. The tangent vector at the first control point.
     Vector3 p_first_tangent = 2;
 
-    //
+    // Optional. The tangent vector at the last control point.
     Vector3 p_1ast_tangent = 3;
 }
 
-//
+// Represents a segment of a curve parameterized by arc length.
 message ArcInterval {
-    //
+    // The arc length which marks the starting point of the segment.
     float start = 1;
 
-    //
+    // The arc length which marks the stopping point of the segment.
     float stop = 2;
 }
