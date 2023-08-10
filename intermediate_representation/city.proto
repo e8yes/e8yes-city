@@ -20,8 +20,8 @@ package e8;
 
 import "intermediate_representation/intersection.proto";
 
-//
+// For storing all elements in a city.
 message City {
-    //
+    // Street intersections in the city.
     repeated StandardIntersection intersections = 1;
 }
