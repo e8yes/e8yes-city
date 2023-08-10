@@ -1,0 +1,42 @@
+// e8City
+// Copyright (C) 2023 e8yes
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package e8;
+
+import "intermediate_representation/space.proto";
+
+// Represents a 3D catmul-rom cubic spline curve.
+message CatmulRomCurve3 {
+    // The ordered set of points to interpolate across.
+    repeated Point3 control_points = 1;
+
+    // Optional. The tangent vector at the first control point.
+    Vector3 p_first_tangent = 2;
+
+    // Optional. The tangent vector at the last control point.
+    Vector3 p_1ast_tangent = 3;
+}
+
+// Represents a segment of a curve parameterized by arc length.
+message ArcInterval {
+    // The arc length which marks the starting point of the segment.
+    float start = 1;
+
+    // The arc length which marks the stopping point of the segment.
+    float stop = 2;
+}

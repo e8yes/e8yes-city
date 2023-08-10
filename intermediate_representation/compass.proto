@@ -1,0 +1,32 @@
+// e8City
+// Copyright (C) 2023 e8yes
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package e8;
+
+// Discretized compass directions.
+enum CompassDirection {
+    UNKNOWN_COMPASS_DIRECTION = 0;
+    NORTH = 1;
+    NORTH_WEST = 2;
+    WEST = 3;
+    SOUTH_WEST = 4;
+    SOUTH = 5;
+    SOUTH_EAST = 6;
+    EAST = 7;
+    NORTH_EAST = 8;
+}

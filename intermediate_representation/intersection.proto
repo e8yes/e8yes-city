@@ -1,0 +1,69 @@
+// e8City
+// Copyright (C) 2023 e8yes
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+syntax = "proto3";
+
+package e8;
+
+import "intermediate_representation/compass.proto";
+import "intermediate_representation/segment.proto";
+import "intermediate_representation/space.proto";
+import "intermediate_representation/street.proto";
+
+// Stores the information about one of the extremities of a street.
+message StreetCut {
+    // The line segment which closes the extremity.
+    Segment3 cut_line = 1;
+
+    // The unit vector which points away from the street at the extremity. It's
+    // also orthogonal to the cut line.
+    Vector3 outward_facing = 2;
+
+    // Indicates if there is a pedestrian crossing at the extremity.
+    bool pedestrian_crossing = 3;
+
+    // Indicates if there is a traffic light at the extremity.
+    bool traffic_light = 4;
+
+    // Indicates if it allows left-turn at the extremity.
+    bool allow_left_turn = 5;
+
+    // Indicates if it allows right-turn at the extremity.
+    bool allow_right_turn = 6;
+
+    // Indicates if it allows unprotected left-turn at the extremity.
+    bool unprotected_left_turn = 7;
+
+    // Indicates if it allows unprotected right-turn at the extremity.
+    bool unprotected_right_turn = 8;
+}
+
+// Represents a standard street intersection. A standard intersection has
+// streets connecting directly towards the center of the intersection.
+message StandardIntersection {
+    // The center location of the intersection.
+    Point3 center = 1;
+
+    // The streets which connect towards the center.
+    repeated Street streets = 2;
+
+    // The information which tells how each street is connected to the
+    // intersection.
+    repeated StreetCut street_cuts = 3;
+
+    // The compass direction of each connected street.
+    repeated CompassDirection street_directions = 4;
+}
