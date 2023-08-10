@@ -20,11 +20,11 @@ package e8;
 
 import "intermediate_representation/space.proto";
 
-//
+// A 3D line segment.
 message Segment3 {
-    //
+    // The starting location of the line segment.
     Point3 start = 1;
 
-    //
+    // The ending location of the line segment.
     Point3 stop = 2;
 }
