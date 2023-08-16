@@ -47,8 +47,8 @@ struct ProbeTopologyResult {
 // that the transportation between any two probes is reasonably efficient.
 ProbeTopologyResult
 ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
-                     unsigned optimization_step_count,
-                     bool optimize_efficiency);
+                     unsigned regularity_optimization_steps,
+                     unsigned efficiency_optimization_steps);
 
 } // namespace procedural
 } // namespace e8

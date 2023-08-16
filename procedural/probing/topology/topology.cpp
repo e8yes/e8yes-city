@@ -28,7 +28,7 @@ namespace e8 {
 namespace procedural {
 namespace {
 
-float const kEfficiencyOptimizationStepCountRatio = 1e-2f;
+unsigned long const kSeed = 13L;
 
 std::vector<ProbeConnection> ToProbeConnection(Topology const &topology) {
   auto [edge_it, _] = boost::edges(topology);
@@ -46,21 +46,12 @@ std::vector<ProbeConnection> ToProbeConnection(Topology const &topology) {
 
 ProbeTopologyResult
 ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
-                     unsigned optimization_step_count,
-                     bool optimize_efficiency) {
+                     unsigned regularity_optimization_steps,
+                     unsigned efficiency_optimization_steps) {
   Topology initial_topology = CreateDelaunayTopology(probes);
-  std::default_random_engine random_engine;
+  std::default_random_engine random_engine(kSeed);
   OptimizeRegularityResult regularized_result = OptimizeRegularity(
-      initial_topology, optimization_step_count, &random_engine);
-
-  unsigned efficiency_optimization_steps;
-  if (optimize_efficiency) {
-    efficiency_optimization_steps = std::max(
-        1.f, optimization_step_count * kEfficiencyOptimizationStepCountRatio);
-  } else {
-    efficiency_optimization_steps = 0;
-  }
-
+      initial_topology, regularity_optimization_steps, &random_engine);
   OptimizeEfficiencyResult optimization_result =
       OptimizeEfficiency(regularized_result.topology,
                          efficiency_optimization_steps, &random_engine);
