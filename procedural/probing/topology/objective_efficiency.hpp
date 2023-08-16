@@ -18,6 +18,7 @@
 
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/sampler.hpp"
+#include <boost/graph/adjacency_list.hpp>
 #include <random>
 #include <vector>
 

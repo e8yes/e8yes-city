@@ -99,8 +99,8 @@ RegularityScore RevertMutation(RevertibleRegularityMutation const &revertible,
 
     assert(u < boost::num_vertices(*topology));
     assert(v < boost::num_vertices(*topology));
-    auto [_, existence] = boost::add_edge(u, v, *topology);
-    assert(!existence);
+    auto [_, successful] = boost::add_edge(u, v, *topology);
+    assert(successful);
   }
 
   for (auto const &[vertex, old_score] : revertible.affected_vertices) {

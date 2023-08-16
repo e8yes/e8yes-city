@@ -42,6 +42,7 @@ set(SRCS
     procedural/probing/topology/sampler.cpp
     procedural/probing/topology/topology.cpp)
 set(PYBIND_SRCS
+    procedural/probing/probe/pybind.cpp
     procedural/probing/topology/pybind.cpp
     pywrap.cpp)
 set(LIBS

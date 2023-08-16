@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "procedural/probing/topology/probe.hpp"
+#include "procedural/probing/probe/probe.hpp"
 #include <vector>
 
 namespace e8 {
@@ -47,7 +47,8 @@ struct ProbeTopologyResult {
 // that the transportation between any two probes is reasonably efficient.
 ProbeTopologyResult
 ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
-                     unsigned optimization_step_count);
+                     unsigned optimization_step_count,
+                     bool optimize_efficiency);
 
 } // namespace procedural
 } // namespace e8

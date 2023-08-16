@@ -15,9 +15,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define BOOST_TEST_MAIN
+#include "procedural/probing/probe/probe.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/init.hpp"
-#include "procedural/probing/topology/probe.hpp"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/test/unit_test.hpp>
 #include <eigen3/Eigen/Core>
