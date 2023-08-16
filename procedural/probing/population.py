@@ -17,6 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from dataclasses import dataclass
+from matplotlib.figure import Figure
+from numpy import array
 from numpy import concatenate
 from numpy import cos
 from numpy import exp
@@ -266,3 +268,32 @@ def GeneratePopulationProbes(city_size: float,
             population_grid_200=population_grid_200))
 
     return result
+
+
+def VisualizePopulationProbes(probes: List[PopulationProbe],
+                              figure: Figure,
+                              axis: int):
+    """Plots the ground projected population probes onto a matplotlib figure.
+
+    Args:
+        probes (List[PopulationProbe]): Probes to be visualized.
+        figure (Figure): The matplotlib figure to be drawn onto.
+        axis (int): The axis of the figure to be drawn onto.
+    """
+    xs = list()
+    ys = list()
+    ss = list()
+
+    min_population = float("inf")
+    max_population = 0.0
+    for probe in probes:
+        xs.append(probe.location[0])
+        ys.append(probe.location[1])
+        ss.append(probe.population_grid_200)
+        min_population = min(min_population, probe.population_grid_200)
+        max_population = max(max_population, probe.population_grid_200)
+
+    xs = array(xs)
+    ys = array(ys)
+    ss = 5*(array(ss) - min_population)/(max_population - min_population)
+    figure.axes[axis].scatter(xs, ys, s=ss)

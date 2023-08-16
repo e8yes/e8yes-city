@@ -17,6 +17,7 @@
  """
 
 import e8citydll
+from matplotlib.figure import Figure
 from procedural.probing.population import PopulationProbe
 from dataclasses import dataclass
 from typing import List
@@ -86,3 +87,24 @@ def ComputePopulationProbeTopology(
     internal_result = e8citydll.ComputeProbeTopology(
         internal_probes, optimization_step_count, optimize_efficiency)
     return _ToProbeTopology(internal_result)
+
+
+def VisualizeProbeTopology(probes: List[PopulationProbe],
+                           probe_topology: ProbeTopology,
+                           figure: Figure,
+                           axis: int) -> None:
+    """Plots the ground projected probe topology onto a matplotlib figure.
+
+    Args:
+        probes (List[PopulationProbe]): Probes which the topology refers to.
+        probe_topology (ProbeTopology): The topology to be visualized.
+        figure (Figure): The matplotlib figure to be drawn onto.
+        axis (int): The axis of the figure to be drawn onto.
+    """
+    for connection in probe_topology.connections:
+        figure.axes[axis].plot(
+            [probes[connection.src_probe_index].location[0],
+             probes[connection.dst_probe_index].location[0]],
+            [probes[connection.src_probe_index].location[1],
+             probes[connection.dst_probe_index].location[1]],
+            color="grey", linewidth=0.5)
