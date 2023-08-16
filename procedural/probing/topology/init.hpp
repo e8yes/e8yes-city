@@ -16,8 +16,8 @@
 
 #pragma once
 
+#include "procedural/probing/probe/probe.hpp"
 #include "procedural/probing/topology/definition.hpp"
-#include "procedural/probing/topology/probe.hpp"
 #include <vector>
 
 namespace e8 {

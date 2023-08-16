@@ -14,11 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/probe/pybind.hpp"
-#include "procedural/probing/topology/pybind.hpp"
 #include <pybind11/pybind11.h>
 
-PYBIND11_MODULE(e8citydll, m) {
-  e8::procedural::RegisterPopulationProbe(&m);
-  e8::procedural::RegisterProbeTopology(&m);
-}
+namespace e8 {
+namespace procedural {
+
+// For registering the population probe interface to the specified Pybind
+// module.
+void RegisterPopulationProbe(pybind11::module *m);
+
+} // namespace procedural
+} // namespace e8

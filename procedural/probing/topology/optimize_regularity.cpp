@@ -23,7 +23,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/log/trivial.hpp>
 #include <cmath>
-#include <iostream>
 #include <random>
 
 namespace e8 {

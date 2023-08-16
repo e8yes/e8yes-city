@@ -15,11 +15,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedural/probing/topology/topology.hpp"
+#include "procedural/probing/probe/probe.hpp"
 #include "procedural/probing/topology/definition.hpp"
 #include "procedural/probing/topology/init.hpp"
 #include "procedural/probing/topology/optimize_efficiency.hpp"
 #include "procedural/probing/topology/optimize_regularity.hpp"
-#include "procedural/probing/topology/probe.hpp"
 #include <algorithm>
 #include <random>
 #include <vector>
@@ -46,16 +46,24 @@ std::vector<ProbeConnection> ToProbeConnection(Topology const &topology) {
 
 ProbeTopologyResult
 ComputeProbeTopology(std::vector<PopulationProbe> const &probes,
-                     unsigned optimization_step_count) {
+                     unsigned optimization_step_count,
+                     bool optimize_efficiency) {
   Topology initial_topology = CreateDelaunayTopology(probes);
   std::default_random_engine random_engine;
   OptimizeRegularityResult regularized_result = OptimizeRegularity(
       initial_topology, optimization_step_count, &random_engine);
-  OptimizeEfficiencyResult optimization_result = OptimizeEfficiency(
-      regularized_result.topology,
-      std::max(1.f,
-               optimization_step_count * kEfficiencyOptimizationStepCountRatio),
-      &random_engine);
+
+  unsigned efficiency_optimization_steps;
+  if (optimize_efficiency) {
+    efficiency_optimization_steps = std::max(
+        1.f, optimization_step_count * kEfficiencyOptimizationStepCountRatio);
+  } else {
+    efficiency_optimization_steps = 0;
+  }
+
+  OptimizeEfficiencyResult optimization_result =
+      OptimizeEfficiency(regularized_result.topology,
+                         efficiency_optimization_steps, &random_engine);
   return ProbeTopologyResult{
       .connections = ToProbeConnection(optimization_result.topology),
       .score = optimization_result.score,

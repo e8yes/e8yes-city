@@ -23,7 +23,6 @@
 #include <boost/log/trivial.hpp>
 #include <cassert>
 #include <cmath>
-#include <iostream>
 #include <utility>
 
 namespace e8 {

@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/topology/probe.hpp"
+#include "procedural/probing/probe/probe.hpp"
 #include "procedural/probing/topology/topology.hpp"
-#include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -24,10 +23,6 @@ namespace e8 {
 namespace procedural {
 
 void RegisterProbeTopology(pybind11::module *m) {
-  // Input struct.
-  pybind11::class_<PopulationProbe>(*m, "PopulationProbe")
-      .def(pybind11::init<Eigen::Vector3f, float>());
-
   // Output struct.
   pybind11::class_<ProbeConnection>(*m, "ProbeConnection")
       .def(pybind11::init<unsigned, unsigned>())
