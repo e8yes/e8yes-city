@@ -93,6 +93,10 @@ message TrafficWay {
     // All traffic lanes that can be accessed from the beginning of the traffic
     // way.
     repeated TrafficLane root_lanes = 2;
+
+    // The flow quantile this traffic way belongs to. It indicates how busy
+    // this traffic way is.
+    float flow_quantile = 3;
 }
 
 // Represents the geometry and the semantics associated with a street.

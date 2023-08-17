@@ -57,7 +57,7 @@ message StandardIntersection {
     // The center location of the intersection.
     Point3 center = 1;
 
-    // The streets which connect towards the center.
+    // The streets which connect towards the center, in counter clock-wise order.
     repeated Street streets = 2;
 
     // The information which tells how each street is connected to the

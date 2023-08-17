@@ -30,6 +30,11 @@ set(SRCS
     intermediate_representation/segment.pb.cc
     intermediate_representation/space.pb.cc
     intermediate_representation/street.pb.cc
+    procedural/probing/flow/flow.cpp
+    procedural/probing/flow/simulate.cpp
+    procedural/probing/flow/time_cost.cpp
+    procedural/probing/flow/topology.cpp
+    procedural/probing/flow/update.cpp
     procedural/probing/topology/definition.cpp
     procedural/probing/topology/edge_set.cpp
     procedural/probing/topology/init.cpp
@@ -42,6 +47,7 @@ set(SRCS
     procedural/probing/topology/sampler.cpp
     procedural/probing/topology/topology.cpp)
 set(PYBIND_SRCS
+    procedural/probing/flow/pybind.cpp
     procedural/probing/probe/pybind.cpp
     procedural/probing/topology/pybind.cpp
     pywrap.cpp)
@@ -73,6 +79,12 @@ function(add_test TEST_NAME SOURCE_FILE_NAME)
                           Boost::unit_test_framework)
 endfunction()
 
+add_test(procedural_probing_flow_simulate_test 
+         procedural/probing/flow/simulate_test.cpp)
+add_test(procedural_probing_flow_time_cost_test 
+         procedural/probing/flow/time_cost_test.cpp)
+add_test(procedural_probing_flow_update_test 
+         procedural/probing/flow/update_test.cpp)
 add_test(procedural_probing_topology_edge_set_test 
          procedural/probing/topology/edge_set_test.cpp)
 add_test(procedural_probing_topology_init_test 
