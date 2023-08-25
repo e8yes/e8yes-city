@@ -14,13 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "procedural/probing/flow/pybind.hpp"
-#include "procedural/probing/probe/pybind.hpp"
-#include "procedural/probing/topology/pybind.hpp"
-#include <pybind11/pybind11.h>
+#pragma once
 
-PYBIND11_MODULE(e8citydll, m) {
-  e8::procedural::RegisterPopulationProbe(&m);
-  e8::procedural::RegisterProbeTopology(&m);
-  e8::procedural::RegisterFlowTopology(&m);
-}
+#include "procedural/probing/flow/topology.hpp"
+#include "procedural/probing/probe/probe.hpp"
+#include <vector>
+
+namespace e8 {
+namespace procedural {
+
+// It simulates how the population would transport over the topology given the
+// previous flow meansurement, then it aggregates transportations to measure the
+// new flows.
+TopologyFlow SimulateFlow(TopologyFlow const &previous_flow,
+                          std::vector<PopulationProbe> const &probes);
+
+} // namespace procedural
+} // namespace e8
