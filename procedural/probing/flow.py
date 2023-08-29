@@ -42,7 +42,7 @@ def _ToInternalConnections(
     return internal_connections
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class ProbeConnectionFlow:
     """Represents the measured flow on a directed connection.
     """
@@ -81,12 +81,14 @@ def EstimateProbeTopologyFlow(
     converges as more iterations are run.
 
     Args:
-        probes (List[PopulationProbe]): _description_
-        connections (List[ProbeConnection]): _description_
-        iteration_count (int): _description_
+        probes (List[PopulationProbe]): The population probes connected by the
+            connections.
+        connections (List[ProbeConnection]): THe undirected connections to
+            estimate flow values upon.
+        iteration_count (int): The number of iteration to run.
 
     Returns:
-        List[ProbeConnectionFlow]: _description_
+        List[ProbeConnectionFlow]: The flow value of each directed connection.
     """
     internal_probes = _ToInternalProbes(probes)
     internal_connections = _ToInternalConnections(connections)
