@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from typing import List
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class ProbeConnection:
     """In the order of the specified probe array, this indicate two probes at
     the following indices should be connected bidirectionally.
@@ -32,7 +32,7 @@ class ProbeConnection:
     dst_probe_index: int
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class ProbeTopology:
     """Returns by ComputePopulationProbeTopology().
     """
