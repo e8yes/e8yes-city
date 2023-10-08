@@ -2,8 +2,11 @@
 
 set -e
 
-# Compiles protocol buffer definitions.
-protoc --cpp_out=. --python_out=. --proto_path=. `find . -name '*.proto'`
+if $1 == "--recompile_proto"
+then
+    # Compiles protocol buffer definitions.
+    protoc --cpp_out=. --python_out=. --proto_path=. `find . -name '*.proto'`
+fi
 
 # Builds and tests C++ binaries.
 mkdir -p bin
@@ -22,5 +25,6 @@ done
 popd
 
 # Tests Python modules.
+python3 -m intermediate_representation.catmul_rom_test
 python3 -m procedural.probing.population_test
 python3 -m procedural.street.curve_test
