@@ -28,3 +28,4 @@ popd
 python3 -m intermediate_representation.catmul_rom_test
 python3 -m procedural.probing.population_test
 python3 -m procedural.street.curve_test
+python3 -m procedural.street.ir_test

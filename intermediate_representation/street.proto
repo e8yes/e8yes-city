@@ -59,29 +59,25 @@ message TrafficLane {
     // the traffic lane.
     int32 left_curve_index = 1;
 
-    // Index to TrafficWay::marked_curves, indicating the center of the traffic
-    // lane.
-    int32 center_curve_index = 2;
-
     // Index to TrafficWay::marked_curves, indicating the rightmost boundary of
     // the traffic lane.
-    int32 right_curve_index = 3;
+    int32 right_curve_index = 2;
 
     // A list of segments on the left curve which allows legal lane change to
     // the left adjacent lane.
-    repeated ArcInterval left_lane_change_windows = 4;
+    repeated ArcInterval left_lane_change_windows = 3;
 
-    // A list of segments on the left curve which allows legal lane change to
+    // A list of segments on the right curve which allows legal lane change to
     // the right adjacent lane.
-    repeated ArcInterval right_lane_change_windows = 5;
+    repeated ArcInterval right_lane_change_windows = 4;
 
     // A list of left adjacent lanes corresponding to the
     // left_lane_change_windows.
-    repeated TrafficLane left_adjacent_lanes = 6;
+    repeated TrafficLane left_adjacent_lanes = 5;
 
-    // A list of left adjacent lanes corresponding to the
+    // A list of right adjacent lanes corresponding to the
     // right_lane_change_windows.
-    repeated TrafficLane right_adjacent_lanes = 7;
+    repeated TrafficLane right_adjacent_lanes = 6;
 }
 
 // A traffic way enables the transportation from one end of a street to the
@@ -94,9 +90,9 @@ message TrafficWay {
     // way.
     repeated TrafficLane root_lanes = 2;
 
-    // The flow quantile this traffic way belongs to. It indicates how busy
+    // The flow percentile this traffic way belongs to. It indicates how busy
     // this traffic way is.
-    float flow_quantile = 3;
+    float flow_percentile = 3;
 }
 
 // Represents the geometry and the semantics associated with a street.
