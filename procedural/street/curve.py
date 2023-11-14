@@ -245,7 +245,8 @@ def ComputeStreetCurves(
     Args:
         probes (List[PopulationProbe]): The population probes connected by the
             flows.
-        intersection_areas (List[Polygon]): _description_
+        intersection_areas (List[Polygon]): The 2D (projected) geometry of
+            intersection at each population probe.
         connection_flows (List[ProbeConnectionFlow]): Each flow is treated as
             a street, which needs to be assigned a curve.
 
@@ -253,6 +254,8 @@ def ComputeStreetCurves(
         Dict[ProbeConnectionFlow, CatmulRomCurve3]: The computed curve for
             each street.
     """
+    assert len(probes) == len(intersection_areas)
+
     out_edges = _CollectOutEdges(connection_flows)
     external_control_points = _ComputeExternalControlPoints(out_edges, probes)
 
