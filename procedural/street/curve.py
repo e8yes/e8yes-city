@@ -16,10 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from intermediate_representation.curve_pb2 import CatmulRomCurve3
-from intermediate_representation.space_pb2 import Point3
-from procedural.probing.flow import ProbeConnectionFlow
-from procedural.probing.population import PopulationProbe
 from matplotlib.figure import Figure
 from numpy import ndarray
 from numpy import array
@@ -27,9 +23,16 @@ from numpy import inner
 from numpy import linspace
 from numpy import sqrt
 from numpy.linalg import norm
+from sympy import Point2D
+from sympy import Polygon
+from sympy import Segment2D
 from typing import Dict
 from typing import List
 from typing import Set
+from intermediate_representation.curve_pb2 import CatmulRomCurve3
+from intermediate_representation.space_pb2 import Point3
+from procedural.probing.flow import ProbeConnectionFlow
+from procedural.probing.population import PopulationProbe
 
 
 def _CollectOutEdges(
@@ -230,6 +233,7 @@ def _ToPoint3(p: ndarray) -> Point3:
 
 def ComputeStreetCurves(
     probes: List[PopulationProbe],
+    intersection_areas: List[Polygon],
     connection_flows: List[ProbeConnectionFlow]) -> \
         Dict[ProbeConnectionFlow, CatmulRomCurve3]:
     """Interpolates the connections amongst the probes using the Catmul-Rom
@@ -241,6 +245,7 @@ def ComputeStreetCurves(
     Args:
         probes (List[PopulationProbe]): The population probes connected by the
             flows.
+        intersection_areas (List[Polygon]): _description_
         connection_flows (List[ProbeConnectionFlow]): Each flow is treated as
             a street, which needs to be assigned a curve.
 
@@ -258,13 +263,34 @@ def ComputeStreetCurves(
         post_probe_control_point = external_control_points[
             connection_flow.dst_probe_index][connection_flow.src_probe_index]
 
+        src_intersection_area = \
+            intersection_areas[connection_flow.src_probe_index]
+        dst_intersection_area = \
+            intersection_areas[connection_flow.dst_probe_index]
+
+        street_segment = Segment2D(
+            p1=Point2D((probes[connection_flow.src_probe_index].location[0],
+                        probes[connection_flow.src_probe_index].location[1])),
+            p2=Point2D((probes[connection_flow.dst_probe_index].location[0],
+                        probes[connection_flow.dst_probe_index].location[1])))
+        src_intersection = src_intersection_area.intersection(street_segment)
+        dst_intersection = dst_intersection_area.intersection(street_segment)
+        assert len(src_intersection) == 1
+        assert len(dst_intersection) == 1
+
+        src_point = Point3(
+            x=src_intersection[0].x.evalf(),
+            y=src_intersection[0].y.evalf(),
+            z=probes[connection_flow.src_probe_index].location[2])
+        dst_point = Point3(
+            x=dst_intersection[0].x.evalf(),
+            y=dst_intersection[0].y.evalf(),
+            z=probes[connection_flow.dst_probe_index].location[2])
+
         street_curve = CatmulRomCurve3()
-        p = _ToPoint3(pre_probe_control_point)
-        street_curve.control_points.append(p)
-        street_curve.control_points.append(
-            _ToPoint3(probes[connection_flow.src_probe_index].location))
-        street_curve.control_points.append(
-            _ToPoint3(probes[connection_flow.dst_probe_index].location))
+        street_curve.control_points.append(_ToPoint3(pre_probe_control_point))
+        street_curve.control_points.append(src_point)
+        street_curve.control_points.append(dst_point)
         street_curve.control_points.append(_ToPoint3(post_probe_control_point))
 
         result[connection_flow] = street_curve

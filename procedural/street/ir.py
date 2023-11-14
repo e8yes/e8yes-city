@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from numpy import array
 from numpy import ndarray
 from numpy.linalg import norm
+from sympy import Polygon
 from typing import Dict
 from typing import List
 from intermediate_representation.catmul_rom import CatmulRomArcLength2T
@@ -171,19 +172,23 @@ def _GenerateTrafficWay(curve: CatmulRomCurve3,
 
 
 def GenerateStreets(probes: List[PopulationProbe],
+                    intersection_areas: List[Polygon],
                     connection_flows: List[ProbeConnectionFlow]) -> \
         Dict[ProbeConnection, Street]:
     """_summary_
 
     Args:
         probes (List[PopulationProbe]): _description_
+        intersection_areas (List[Polygon]): _description_
         connection_flows (List[ProbeConnectionFlow]): _description_
 
     Returns:
         Dict[ProbeConnection, Street]: _description_
     """
     curves = ComputeStreetCurves(
-        probes=probes, connection_flows=connection_flows)
+        probes=probes,
+        intersection_areas=intersection_areas,
+        connection_flows=connection_flows)
 
     result: Dict[ProbeConnection, Street] = dict()
     for connection_flow, curve in curves.items():
