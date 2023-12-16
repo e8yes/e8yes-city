@@ -65,7 +65,7 @@ def _TranslateCurve(
             z=curve.control_points[i].z + distance*dir[2])
         ps.append(p)
 
-    return CatmulRomCurve3(control_points=[ps])
+    return CatmulRomCurve3(control_points=ps)
 
 
 def _StandardMarkings(
@@ -136,9 +136,8 @@ def _GenerateStandardRootLanes(
     for i in range(lane_count):
         if i > 0:
             assert len(standard_marked_curves[i].markings) == 3
-            assert len(
-                standard_marked_curves[i].markings[1] ==
-                TrafficMarking.DASHED_WHITE)
+            assert standard_marked_curves[i].markings[1].marking_type ==    \
+                TrafficMarking.DASHED_WHITE
 
             window = standard_marked_curves[i].markings[1].arc_interval
             root_lanes[i].left_lane_change_windows.append(window)
@@ -146,9 +145,8 @@ def _GenerateStandardRootLanes(
 
         if i < lane_count - 1:
             assert len(standard_marked_curves[i + 1].markings) == 3
-            assert len(
-                standard_marked_curves[i + 1].markings[1] ==
-                TrafficMarking.DASHED_WHITE)
+            assert standard_marked_curves[i + 1].markings[1].marking_type == \
+                TrafficMarking.DASHED_WHITE
 
             window = standard_marked_curves[i + 1].markings[1].arc_interval
             root_lanes[i].right_lane_change_windows.append(window)
@@ -175,15 +173,21 @@ def GenerateStreets(probes: List[PopulationProbe],
                     intersection_areas: List[Polygon],
                     connection_flows: List[ProbeConnectionFlow]) -> \
         Dict[ProbeConnection, Street]:
-    """_summary_
+    """Generates the street intermediate representation based on the geometry
+    of the intersection at each probe together with connection flow.
 
     Args:
-        probes (List[PopulationProbe]): _description_
-        intersection_areas (List[Polygon]): _description_
-        connection_flows (List[ProbeConnectionFlow]): _description_
+        probes (List[PopulationProbe]): A list of population probes connected
+            by the flows.
+        intersection_areas (List[Polygon]): The geometry of the intersection
+            at each probe.
+        connection_flows (List[ProbeConnectionFlow]): A list of traffic flows
+            between pairs of probes.
 
     Returns:
-        Dict[ProbeConnection, Street]: _description_
+        Dict[ProbeConnection, Street]: A dictionary mapping probe connections
+            (pairs of probes) to their corresponding street intermediate
+            representations.
     """
     curves = ComputeStreetCurves(
         probes=probes,

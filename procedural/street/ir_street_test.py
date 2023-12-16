@@ -18,70 +18,46 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 from numpy import array
-from numpy import array_equal
-from numpy import linspace
-from intermediate_representation.curve_pb2 import CatmulRomCurve3
-from intermediate_representation.catmul_rom import CatmulRomArcLength2T
-from intermediate_representation.catmul_rom import CatmulRomDomain
-from intermediate_representation.catmul_rom import CatmulRomFTs
-from intermediate_representation.catmul_rom import CatmulRomT2ArcLength
-from intermediate_representation.space_pb2 import Point3
+from sympy import Point2D
+from sympy import Polygon
+from procedural.probing.flow import ProbeConnectionFlow
+from procedural.probing.population import PopulationProbe
+from procedural.probing.topology import ProbeConnection
+from procedural.street.ir_street import GenerateStreets
 
 
-class CatmulRomTest(unittest.TestCase):
-    def test_FtRechesControlPoints(self):
-        p0 = Point3(x=-15, y=-20, z=0)
-        p1 = Point3(x=-10, y=-10, z=0)
-        p2 = Point3(x=10, y=10, z=0)
-        p3 = Point3(x=15, y=20, z=0)
-        curve = CatmulRomCurve3(control_points=[
-            p0, p1, p2, p3])
+class IrStreetTest(unittest.TestCase):
+    def test_GenerateStreets(self):
+        probe0 = PopulationProbe(location=array(
+            [0, 0, 0]), population_grid_200=100)
+        probe1 = PopulationProbe(location=array(
+            [1000, 0, 0]), population_grid_200=100)
 
-        t1, t2 = CatmulRomDomain(curve=curve)
-        ts = linspace(start=t1, stop=t2, num=10)
-        pts = CatmulRomFTs(curve=curve, ts=ts)
+        intersection0 = Polygon(
+            Point2D((7, 7)),
+            Point2D((7, -7)),
+            Point2D((-7, -7)),
+            Point2D((-7, 7)))
+        intersection1 = Polygon(
+            Point2D((1007, 7)),
+            Point2D((1007, -7)),
+            Point2D((993, -7)),
+            Point2D((993, 7)))
 
-        self.assertEqual(10, pts.shape[0])
-        self.assertTrue(array_equal(array([-10, -10, 0]), pts[0]))
-        self.assertTrue(array_equal(array([10, 10, 0]), pts[9]))
+        flow0 = ProbeConnectionFlow(
+            src_probe_index=0, dst_probe_index=1, flow=10, lane_count=1)
+        flow1 = ProbeConnectionFlow(
+            src_probe_index=1, dst_probe_index=0, flow=40, lane_count=2)
 
-    def test_CurveParameterToArcLength(self):
-        p0 = Point3(x=-15, y=-20, z=0)
-        p1 = Point3(x=-10, y=-10, z=0)
-        p2 = Point3(x=10, y=10, z=0)
-        p3 = Point3(x=15, y=20, z=0)
-        curve = CatmulRomCurve3(control_points=[
-            p0, p1, p2, p3])
+        streets = GenerateStreets(
+            probes=[probe0, probe1],
+            intersection_areas=[intersection0, intersection1],
+            connection_flows=[flow0, flow1])
 
-        t1, t2 = CatmulRomDomain(curve=curve)
-
-        s = CatmulRomT2ArcLength(curve=curve, t=t1)
-        self.assertAlmostEqual(0, s)
-
-        s = CatmulRomT2ArcLength(curve=curve, t=t2)
-        self.assertAlmostEqual(28.3, s, places=1)
-
-        s = CatmulRomT2ArcLength(curve=curve, t=(t1 + t2)/2)
-        self.assertAlmostEqual(14.2, s, places=1)
-
-    def test_ArcLengthToCurveParameter(self):
-        p0 = Point3(x=-15, y=-20, z=0)
-        p1 = Point3(x=-10, y=-10, z=0)
-        p2 = Point3(x=10, y=10, z=0)
-        p3 = Point3(x=15, y=20, z=0)
-        curve = CatmulRomCurve3(control_points=[
-            p0, p1, p2, p3])
-
-        t1, t2 = CatmulRomDomain(curve=curve)
-
-        t = CatmulRomArcLength2T(curve=curve, s=0.0)
-        self.assertAlmostEqual(t1, t, places=1)
-
-        t = CatmulRomArcLength2T(curve=curve, s=28.3)
-        self.assertAlmostEqual(t2, t, places=1)
-
-        t = CatmulRomArcLength2T(curve=curve, s=14.2)
-        self.assertAlmostEqual((t1 + t2)/2, t, places=1)
+        self.assertTrue(ProbeConnection(
+            src_probe_index=0, dst_probe_index=1) in streets)
+        self.assertTrue(ProbeConnection(
+            src_probe_index=1, dst_probe_index=0) not in streets)
 
 
 if __name__ == '__main__':
