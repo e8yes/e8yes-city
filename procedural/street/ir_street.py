@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from numpy import array
 from numpy import ndarray
 from numpy.linalg import norm
-from sympy import Polygon
+from sympy import Circle
 from typing import Dict
 from typing import List
 from intermediate_representation.catmul_rom import CatmulRomArcLength2T
@@ -170,7 +170,7 @@ def _GenerateTrafficWay(curve: CatmulRomCurve3,
 
 
 def GenerateStreets(probes: List[PopulationProbe],
-                    intersection_areas: List[Polygon],
+                    intersection_areas: List[Circle],
                     connection_flows: List[ProbeConnectionFlow]) -> \
         Dict[ProbeConnection, Street]:
     """Generates the street intermediate representation based on the geometry
@@ -179,8 +179,8 @@ def GenerateStreets(probes: List[PopulationProbe],
     Args:
         probes (List[PopulationProbe]): A list of population probes connected
             by the flows.
-        intersection_areas (List[Polygon]): The geometry of the intersection
-            at each probe.
+        intersection_areas (List[Circle]): The approximate geometry of the
+            intersection at each probe.
         connection_flows (List[ProbeConnectionFlow]): A list of traffic flows
             between pairs of probes.
 

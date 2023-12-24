@@ -23,8 +23,8 @@ from numpy import inner
 from numpy import linspace
 from numpy import sqrt
 from numpy.linalg import norm
+from sympy import Circle
 from sympy import Point2D
-from sympy import Polygon
 from sympy import Segment2D
 from typing import Dict
 from typing import List
@@ -233,7 +233,7 @@ def _ToPoint3(p: ndarray) -> Point3:
 
 def ComputeStreetCurves(
     probes: List[PopulationProbe],
-    intersection_areas: List[Polygon],
+    intersection_areas: List[Circle],
     connection_flows: List[ProbeConnectionFlow]) -> \
         Dict[ProbeConnectionFlow, CatmulRomCurve3]:
     """Interpolates the connections amongst the probes using the Catmul-Rom
@@ -245,8 +245,8 @@ def ComputeStreetCurves(
     Args:
         probes (List[PopulationProbe]): The population probes connected by the
             flows.
-        intersection_areas (List[Polygon]): The 2D (projected) geometry of
-            intersection at each population probe.
+        intersection_areas (List[Circle]): The 2D (projected) approximate
+            geometry of intersection at each population probe.
         connection_flows (List[ProbeConnectionFlow]): Each flow is treated as
             a street, which needs to be assigned a curve.
 
