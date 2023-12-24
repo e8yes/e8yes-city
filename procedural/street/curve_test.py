@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
 from numpy import array
+from sympy import Circle
 from sympy import Point2D
-from sympy import Polygon
 from procedural.probing.flow import ProbeConnectionFlow
 from procedural.probing.population import PopulationProbe
 from procedural.street.curve import ComputeStreetCurves
@@ -29,11 +29,7 @@ class StreetCurveTest(unittest.TestCase):
     def test_WhenIntersectionIsZeroWay_ThenExpectEmptyResult(self):
         probe = PopulationProbe(location=array(
             [0, 0, 0]), population_grid_200=100)
-        intersection = Polygon(
-            Point2D((7, 7)),
-            Point2D((7, -7)),
-            Point2D((-7, -7)),
-            Point2D((-7, 7)))
+        intersection = Circle(Point2D((0, 0)), 7)
 
         curves = ComputeStreetCurves(
             probes=[probe],
@@ -47,16 +43,8 @@ class StreetCurveTest(unittest.TestCase):
         probe1 = PopulationProbe(location=array(
             [1000, 0, 0]), population_grid_200=100)
 
-        intersection0 = Polygon(
-            Point2D((7, 7)),
-            Point2D((7, -7)),
-            Point2D((-7, -7)),
-            Point2D((-7, 7)))
-        intersection1 = Polygon(
-            Point2D((1007, 7)),
-            Point2D((1007, -7)),
-            Point2D((993, -7)),
-            Point2D((993, 7)))
+        intersection0 = Circle(Point2D((0, 0)), 7)
+        intersection1 = Circle(Point2D((1000, 0)), 7)
 
         flow0 = ProbeConnectionFlow(
             src_probe_index=0, dst_probe_index=1, flow=10, lane_count=1)

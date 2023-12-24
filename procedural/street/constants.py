@@ -17,5 +17,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 LANE_WIDTH = 3.5
-INTERSECTION_HALF_SIZE_PER_LANE = LANE_WIDTH
+INTERSECTION_AREA_SCALING_FACTOR = 1.1
 SOLID_LINE_LENGTH_BEFORE_INTERSECTION = 20
