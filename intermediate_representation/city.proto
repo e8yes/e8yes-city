@@ -19,9 +19,17 @@ syntax = "proto3";
 package e8;
 
 import "intermediate_representation/intersection.proto";
+import "intermediate_representation/street.proto";
+import "intermediate_representation/traffic_way.proto";
 
-// For storing all elements in a city.
+// For storing all the elements in a city.
 message City {
-    // Street intersections in the city.
-    repeated StandardIntersection intersections = 1;
+    // Traffic ways, keyed by their unique ID.
+    map<string, TrafficWay> traffic_ways = 1;
+
+    // Streets, keyed by their unique ID.
+    map<string, Street> streets = 2;
+
+    // Street intersections, keyed by their unique ID.
+    map<string, Intersection> intersections = 3;
 }

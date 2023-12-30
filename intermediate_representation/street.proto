@@ -20,81 +20,6 @@ package e8;
 
 import "intermediate_representation/curve.proto";
 
-// Represents the traffic markings on a street.
-message TrafficMarking {
-    // All available traffic marking types.
-    enum MarkingType {
-        STREET_MARKING_TYPE_UNKNOWN = 0;
-        ARROW_STRAIGHT = 1;
-        ARROW_STRAIGHT_OR_LEFT_TURN = 2;
-        ARROW_STRAIGHT_OR_RIGHT_TURN = 3;
-        ARROW_LEFT_TURN = 4;
-        ARROW_LEFT_TURN_OR_U_TURN = 5;
-        ARROW_RIGHT_TURN = 6;
-        DASHED_WHITE = 7;
-        HOLLOW = 8;
-        SOLID_WHITE = 9;
-        SOLID_YELLOW = 10;
-    }
-
-    // The curve segment for which to apply the marking.
-    ArcInterval arc_interval = 1;
-
-    // The type of traffic marking to apply.
-    MarkingType marking_type = 2;
-}
-
-// Represents a curve with traffic markings.
-message MarkedCurve {
-    // The curve to be marked.
-    CatmulRomCurve3 curve = 1;
-
-    // The markings to apply to different partitions of the curve.
-    repeated TrafficMarking markings = 2;
-}
-
-// Represents a traffic lane.
-message TrafficLane {
-    // Index to TrafficWay::marked_curves, indicating the leftmost boundary of
-    // the traffic lane.
-    int32 left_curve_index = 1;
-
-    // Index to TrafficWay::marked_curves, indicating the rightmost boundary of
-    // the traffic lane.
-    int32 right_curve_index = 2;
-
-    // A list of segments on the left curve which allows legal lane change to
-    // the left adjacent lane.
-    repeated ArcInterval left_lane_change_windows = 3;
-
-    // A list of segments on the right curve which allows legal lane change to
-    // the right adjacent lane.
-    repeated ArcInterval right_lane_change_windows = 4;
-
-    // A list of left adjacent lanes corresponding to the
-    // left_lane_change_windows.
-    repeated TrafficLane left_adjacent_lanes = 5;
-
-    // A list of right adjacent lanes corresponding to the
-    // right_lane_change_windows.
-    repeated TrafficLane right_adjacent_lanes = 6;
-}
-
-// A traffic way enables the transportation from one end of a street to the
-// other.
-message TrafficWay {
-    // All the marked curves in the traffic way.
-    repeated MarkedCurve marked_curves = 1;
-
-    // All traffic lanes that can be accessed from the beginning of the traffic
-    // way.
-    repeated TrafficLane root_lanes = 2;
-
-    // The flow percentile this traffic way belongs to. It indicates how busy
-    // this traffic way is.
-    float flow_percentile = 3;
-}
-
 // Represents the geometry and the semantics associated with a street.
 message Street {
     // The curve which runs down the center of the street.
@@ -102,5 +27,5 @@ message Street {
 
     // A list of traffic ways in the street. A street can only be one-way or
     // two-way.
-    repeated TrafficWay traffic_ways = 2;
+    repeated string traffic_way_ids = 2;
 }
