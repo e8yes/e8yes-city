@@ -30,6 +30,7 @@ set(SRCS
     intermediate_representation/segment.pb.cc
     intermediate_representation/space.pb.cc
     intermediate_representation/street.pb.cc
+    intermediate_representation/traffic_way.pb.cc
     procedural/probing/flow/flow.cpp
     procedural/probing/flow/simulate.cpp
     procedural/probing/flow/time_cost.cpp

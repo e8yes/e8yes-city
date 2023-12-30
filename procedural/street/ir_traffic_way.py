@@ -19,25 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from numpy import array
 from numpy import ndarray
 from numpy.linalg import norm
-from sympy import Circle
 from typing import Dict
 from typing import List
+
 from intermediate_representation.catmul_rom import CatmulRomArcLength2T
 from intermediate_representation.catmul_rom import CatmulRomDomain
 from intermediate_representation.curve_pb2 import ArcInterval
 from intermediate_representation.curve_pb2 import CatmulRomCurve3
 from intermediate_representation.space_pb2 import Point3
-from intermediate_representation.street_pb2 import MarkedCurve
-from intermediate_representation.street_pb2 import Street
-from intermediate_representation.street_pb2 import TrafficLane
-from intermediate_representation.street_pb2 import TrafficMarking
-from intermediate_representation.street_pb2 import TrafficWay
+from intermediate_representation.traffic_way_pb2 import MarkedCurve
+from intermediate_representation.traffic_way_pb2 import TrafficLane
+from intermediate_representation.traffic_way_pb2 import TrafficMarking
+from intermediate_representation.traffic_way_pb2 import TrafficWay
 from procedural.probing.flow import ProbeConnectionFlow
-from procedural.probing.population import PopulationProbe
 from procedural.probing.topology import ProbeConnection
 from procedural.street.constants import LANE_WIDTH
 from procedural.street.constants import SOLID_LINE_LENGTH_BEFORE_INTERSECTION
-from procedural.street.curve import ComputeStreetCurves
 
 
 def _CentralNormal(curve: CatmulRomCurve3) -> ndarray:
@@ -169,53 +166,31 @@ def _GenerateTrafficWay(curve: CatmulRomCurve3,
         flow_percentile=flow_percentile)
 
 
-def GenerateStreets(probes: List[PopulationProbe],
-                    intersection_areas: List[Circle],
-                    connection_flows: List[ProbeConnectionFlow]) -> \
-        Dict[ProbeConnection, Street]:
-    """Generates the street intermediate representation based on the geometry
-    of the intersection at each probe together with connection flow.
+def GenerateTrafficWays(
+    street_curves: Dict[ProbeConnectionFlow, CatmulRomCurve3]) -> \
+        Dict[ProbeConnection, TrafficWay]:
+    """Generates the traffic way intermediate representation based on the
+    geometry of the street center curves together with the flow statistics.
 
     Args:
-        probes (List[PopulationProbe]): A list of population probes connected
-            by the flows.
-        intersection_areas (List[Circle]): The approximate geometry of the
-            intersection at each probe.
-        connection_flows (List[ProbeConnectionFlow]): A list of traffic flows
-            between pairs of probes.
+        street_curves (Dict[ProbeConnectionFlow, CatmulRomCurve3]): The flow
+            statistics and the geometry of the street center curves.
 
     Returns:
         Dict[ProbeConnection, Street]: A dictionary mapping probe connections
-            (pairs of probes) to their corresponding street intermediate
+            (pairs of probes) to their corresponding traffic way intermediate
             representations.
     """
-    curves = ComputeStreetCurves(
-        probes=probes,
-        intersection_areas=intersection_areas,
-        connection_flows=connection_flows)
-
-    result: Dict[ProbeConnection, Street] = dict()
-    for connection_flow, curve in curves.items():
+    result: Dict[ProbeConnection, TrafficWay] = dict()
+    for connection_flow, curve in street_curves.items():
         traffic_way = _GenerateTrafficWay(
             curve=curve,
             lane_count=connection_flow.lane_count,
             flow_percentile=connection_flow.flow)
 
-        reverse_conn = ProbeConnection(
-            src_probe_index=connection_flow.dst_probe_index,
-            dst_probe_index=connection_flow.src_probe_index)
-        if reverse_conn not in result:
-            # First encounter.
-            conn = ProbeConnection(
-                src_probe_index=connection_flow.src_probe_index,
-                dst_probe_index=connection_flow.dst_probe_index)
-            street = Street(
-                center_curve=curve,
-                traffic_ways=[traffic_way])
-
-            result[conn] = street
-        else:
-            # Second encounter in the reverse direction.
-            result[conn].traffic_ways.append(traffic_way)
+        conn = ProbeConnection(
+            src_probe_index=connection_flow.src_probe_index,
+            dst_probe_index=connection_flow.dst_probe_index)
+        result[conn] = traffic_way
 
     return result

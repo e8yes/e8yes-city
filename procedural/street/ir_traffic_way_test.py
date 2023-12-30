@@ -23,11 +23,12 @@ from sympy import Point2D
 from procedural.probing.flow import ProbeConnectionFlow
 from procedural.probing.population import PopulationProbe
 from procedural.probing.topology import ProbeConnection
-from procedural.street.ir_street import GenerateStreets
+from procedural.street.curve import ComputeStreetCurves
+from procedural.street.ir_traffic_way import GenerateTrafficWays
 
 
-class IrStreetTest(unittest.TestCase):
-    def test_GenerateStreets(self):
+class IrTrafficWayTest(unittest.TestCase):
+    def test_GenerateTrafficWays(self):
         probe0 = PopulationProbe(location=array(
             [0, 0, 0]), population_grid_200=100)
         probe1 = PopulationProbe(location=array(
@@ -41,15 +42,18 @@ class IrStreetTest(unittest.TestCase):
         flow1 = ProbeConnectionFlow(
             src_probe_index=1, dst_probe_index=0, flow=40, lane_count=2)
 
-        streets = GenerateStreets(
+        street_curves = ComputeStreetCurves(
             probes=[probe0, probe1],
             intersection_areas=[intersection0, intersection1],
             connection_flows=[flow0, flow1])
 
+        traffic_ways = GenerateTrafficWays(street_curves)
+
+        self.assertEqual(len(traffic_ways), 2)
         self.assertTrue(ProbeConnection(
-            src_probe_index=0, dst_probe_index=1) in streets)
+            src_probe_index=0, dst_probe_index=1) in traffic_ways)
         self.assertTrue(ProbeConnection(
-            src_probe_index=1, dst_probe_index=0) not in streets)
+            src_probe_index=1, dst_probe_index=0) in traffic_ways)
 
 
 if __name__ == '__main__':
