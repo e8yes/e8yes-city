@@ -23,13 +23,14 @@ from numpy import linspace
 from intermediate_representation.curve_pb2 import CatmulRomCurve3
 from intermediate_representation.catmul_rom import CatmulRomArcLength2T
 from intermediate_representation.catmul_rom import CatmulRomDomain
+from intermediate_representation.catmul_rom import CatmulRomDTs
 from intermediate_representation.catmul_rom import CatmulRomFTs
 from intermediate_representation.catmul_rom import CatmulRomT2ArcLength
 from intermediate_representation.space_pb2 import Point3
 
 
 class CatmulRomTest(unittest.TestCase):
-    def test_FtRechesControlPoints(self):
+    def test_FtReachesControlPoints(self):
         p0 = Point3(x=-15, y=-20, z=0)
         p1 = Point3(x=-10, y=-10, z=0)
         p2 = Point3(x=10, y=10, z=0)
@@ -44,6 +45,29 @@ class CatmulRomTest(unittest.TestCase):
         self.assertEqual(10, pts.shape[0])
         self.assertTrue(array_equal(array([-10, -10, 0]), pts[0]))
         self.assertTrue(array_equal(array([10, 10, 0]), pts[9]))
+
+    def test_DtAtControlPoints(self):
+        p0 = Point3(x=-15, y=-20, z=0)
+        p1 = Point3(x=-10, y=-10, z=0)
+        p2 = Point3(x=10, y=10, z=0)
+        p3 = Point3(x=20, y=15, z=0)
+        curve = CatmulRomCurve3(control_points=[
+            p0, p1, p2, p3])
+
+        t1, t2 = CatmulRomDomain(curve=curve)
+        dt1 = CatmulRomDTs(curve=curve, ts=t1)
+        dt2 = CatmulRomDTs(curve=curve, ts=t2)
+
+        self.assertEqual(3, dt1.shape[1])
+        self.assertEqual(3, dt2.shape[1])
+
+        self.assertAlmostEqual(dt1[0, 0], 0.585, places=3)
+        self.assertAlmostEqual(dt1[0, 1], 0.811, places=3)
+        self.assertAlmostEqual(dt1[0, 2], 0.0, places=3)
+
+        self.assertAlmostEqual(dt2[0, 0], 0.811, places=3)
+        self.assertAlmostEqual(dt2[0, 1], 0.585, places=3)
+        self.assertAlmostEqual(dt2[0, 2], 0.0, places=3)
 
     def test_CurveParameterToArcLength(self):
         p0 = Point3(x=-15, y=-20, z=0)

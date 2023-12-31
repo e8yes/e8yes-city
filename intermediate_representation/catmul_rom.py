@@ -90,6 +90,26 @@ def CatmulRomFTs(curve: CatmulRomCurve3, ts: ndarray) -> ndarray:
     return ps
 
 
+def CatmulRomDTs(curve: CatmulRomCurve3, ts: ndarray) -> ndarray:
+    """Compute the unit tangent vectors at the specified curve parameters.
+
+    Args:
+        curve (CatmulRomCurve3): The curve to be evaluated.
+        ts (ndarray): The array of curve parameters to be evaluated upon.
+
+    Returns:
+        ndarray: The evaluated unit tangent vectors on the curve, of shape
+            (n, 3)
+    """
+    DT = 1e-3
+
+    ps = CatmulRomFTs(curve, ts)
+    p_nexts = CatmulRomFTs(curve, ts + DT)
+
+    tangent = (p_nexts - ps)/DT
+    return tangent/norm(tangent)
+
+
 def CatmulRomT2ArcLength(
         curve: CatmulRomCurve3,
         t: float,
