@@ -55,6 +55,85 @@ class IrTrafficWayTest(unittest.TestCase):
         self.assertTrue(ProbeConnection(
             src_probe_index=1, dst_probe_index=0) in traffic_ways)
 
+        traffic_way_01 = traffic_ways[ProbeConnection(
+            src_probe_index=0, dst_probe_index=1)]
+        traffic_way_10 = traffic_ways[ProbeConnection(
+            src_probe_index=1, dst_probe_index=0)]
+
+        # Check 0->1.
+        self.assertEqual(traffic_way_01.id, "0_1")
+        self.assertEqual(len(traffic_way_01.marked_curves), 2)
+
+        self.assertEqual(len(traffic_way_01.lanes), 1)
+        self.assertEqual(traffic_way_01.lanes[0].left_curve_index, 0)
+        self.assertEqual(traffic_way_01.lanes[0].right_curve_index, 1)
+        self.assertEqual(
+            len(traffic_way_01.lanes[0].left_lane_change_windows), 0)
+        self.assertEqual(
+            len(traffic_way_01.lanes[0].right_lane_change_windows), 0)
+        self.assertEqual(
+            len(traffic_way_01.lanes[0].left_adjacent_lane_indices), 0)
+        self.assertEqual(
+            len(traffic_way_01.lanes[0].right_adjacent_lane_indices), 0)
+
+        self.assertEqual(len(traffic_way_01.entrance_lane_indices), 1)
+        self.assertEqual(traffic_way_01.entrance_lane_indices[0], 0)
+        self.assertEqual(traffic_way_01.exit_lane_indices[0], 0)
+
+        self.assertEqual(len(traffic_way_01.entrance_lane_indices), 1)
+
+        # Check 1->0.
+        self.assertEqual(traffic_way_10.id, "1_0")
+        self.assertEqual(len(traffic_way_10.marked_curves), 3)
+
+        self.assertEqual(len(traffic_way_10.lanes), 2)
+        self.assertEqual(traffic_way_10.lanes[0].left_curve_index, 0)
+        self.assertEqual(traffic_way_10.lanes[1].left_curve_index, 1)
+        self.assertEqual(traffic_way_10.lanes[0].right_curve_index, 1)
+        self.assertEqual(traffic_way_10.lanes[1].right_curve_index, 2)
+        self.assertEqual(
+            len(traffic_way_10.lanes[0].left_lane_change_windows), 0)
+        self.assertEqual(
+            len(traffic_way_10.lanes[1].left_lane_change_windows), 1)
+        self.assertAlmostEqual(
+            traffic_way_10.lanes[1].left_lane_change_windows[0].start,
+            32.4,
+            places=1)
+        self.assertAlmostEqual(
+            traffic_way_10.lanes[1].left_lane_change_windows[0].stop,
+            62.5,
+            places=1)
+        self.assertEqual(
+            len(traffic_way_10.lanes[0].right_lane_change_windows), 1)
+        self.assertAlmostEqual(
+            traffic_way_10.lanes[0].right_lane_change_windows[0].start,
+            32.4,
+            places=1)
+        self.assertAlmostEqual(
+            traffic_way_10.lanes[0].right_lane_change_windows[0].stop,
+            62.5,
+            places=1)
+        self.assertEqual(
+            len(traffic_way_10.lanes[1].right_lane_change_windows), 0)
+        self.assertEqual(
+            len(traffic_way_10.lanes[0].left_adjacent_lane_indices), 0)
+        self.assertEqual(
+            len(traffic_way_10.lanes[1].left_adjacent_lane_indices), 1)
+        self.assertEqual(
+            traffic_way_10.lanes[1].left_adjacent_lane_indices[0], 0)
+        self.assertEqual(
+            len(traffic_way_10.lanes[0].right_adjacent_lane_indices), 1)
+        self.assertEqual(
+            traffic_way_10.lanes[0].right_adjacent_lane_indices[0], 1)
+        self.assertEqual(
+            len(traffic_way_10.lanes[1].right_adjacent_lane_indices), 0)
+
+        self.assertEqual(len(traffic_way_10.entrance_lane_indices), 2)
+        self.assertEqual(traffic_way_10.entrance_lane_indices[0], 0)
+        self.assertEqual(traffic_way_10.entrance_lane_indices[1], 1)
+        self.assertEqual(traffic_way_10.exit_lane_indices[0], 0)
+        self.assertEqual(traffic_way_10.exit_lane_indices[1], 1)
+
 
 if __name__ == '__main__':
     unittest.main()

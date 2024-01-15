@@ -119,16 +119,19 @@ def _GenerateStandardMarkedCurves(
     return result
 
 
-def _GenerateStandardRootLanes(
+def _GenerateStandardEntranceLanes(
         lane_count: int,
         standard_marked_curves: List[MarkedCurve]) -> List[TrafficLane]:
-    root_lanes = list()
+    assert lane_count > 0
+    assert len(standard_marked_curves) == lane_count + 1
+
+    result = list()
 
     for i in range(lane_count):
         lane = TrafficLane(
             left_curve_index=i,
             right_curve_index=i + 1)
-        root_lanes.append(lane)
+        result.append(lane)
 
     for i in range(lane_count):
         if i > 0:
@@ -137,8 +140,8 @@ def _GenerateStandardRootLanes(
                 TrafficMarking.DASHED_WHITE
 
             window = standard_marked_curves[i].markings[1].arc_interval
-            root_lanes[i].left_lane_change_windows.append(window)
-            root_lanes[i].left_adjacent_lanes.append(root_lanes[i - 1])
+            result[i].left_lane_change_windows.append(window)
+            result[i].left_adjacent_lane_indices.append(i - 1)
 
         if i < lane_count - 1:
             assert len(standard_marked_curves[i + 1].markings) == 3
@@ -146,23 +149,29 @@ def _GenerateStandardRootLanes(
                 TrafficMarking.DASHED_WHITE
 
             window = standard_marked_curves[i + 1].markings[1].arc_interval
-            root_lanes[i].right_lane_change_windows.append(window)
-            root_lanes[i].right_adjacent_lanes.append(root_lanes[i + 1])
+            result[i].right_lane_change_windows.append(window)
+            result[i].right_adjacent_lane_indices.append(i + 1)
 
-    return root_lanes
+    return result
 
 
-def _GenerateTrafficWay(curve: CatmulRomCurve3,
+def _GenerateTrafficWay(src_probe_index: int,
+                        dst_probe_index: int,
+                        curve: CatmulRomCurve3,
                         lane_count: int,
                         flow_percentile: float) -> TrafficWay:
     standard_marked_curves = _GenerateStandardMarkedCurves(
         curve=curve, lane_count=lane_count)
-    root_lanes = _GenerateStandardRootLanes(
+    entrance_lanes = _GenerateStandardEntranceLanes(
         lane_count=lane_count, standard_marked_curves=standard_marked_curves)
 
     return TrafficWay(
+        id=f"{src_probe_index}_{dst_probe_index}",
+        leftmost_curve=curve,
         marked_curves=standard_marked_curves,
-        root_lanes=root_lanes,
+        lanes=entrance_lanes,
+        entrance_lane_indices=[i for i in range(len(entrance_lanes))],
+        exit_lane_indices=[i for i in range(len(entrance_lanes))],
         flow_percentile=flow_percentile)
 
 
@@ -184,6 +193,8 @@ def GenerateTrafficWays(
     result: Dict[ProbeConnection, TrafficWay] = dict()
     for connection_flow, curve in street_curves.items():
         traffic_way = _GenerateTrafficWay(
+            connection_flow.src_probe_index,
+            connection_flow.dst_probe_index,
             curve=curve,
             lane_count=connection_flow.lane_count,
             flow_percentile=connection_flow.flow)
