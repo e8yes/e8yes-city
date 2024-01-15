@@ -71,26 +71,39 @@ message TrafficLane {
     // the right adjacent lane.
     repeated ArcInterval right_lane_change_windows = 4;
 
-    // A list of left adjacent lanes corresponding to the
+    // A list of left adjacent lane indces corresponding to the
     // left_lane_change_windows.
-    repeated TrafficLane left_adjacent_lanes = 5;
+    repeated int32 left_adjacent_lane_indices = 5;
 
-    // A list of right adjacent lanes corresponding to the
+    // A list of right adjacent lanes indices corresponding to the
     // right_lane_change_windows.
-    repeated TrafficLane right_adjacent_lanes = 6;
+    repeated int32 right_adjacent_lane_indices = 6;
 }
 
 // A traffic way enables the transportation from one end of a street to the
 // other.
 message TrafficWay {
+    // The unique ID of this traffic way.
+    string id = 1;
+
+    // The street center curve.
+    CatmulRomCurve3 leftmost_curve = 2;
+
     // All the marked curves in the traffic way.
-    repeated MarkedCurve marked_curves = 1;
+    repeated MarkedCurve marked_curves = 3;
+
+    // All the lanes in the traffic way.
+    repeated TrafficLane lanes = 4;
 
     // All traffic lanes that can be accessed from the beginning of the traffic
-    // way.
-    repeated TrafficLane root_lanes = 2;
+    // way. Sorted in ascending distance from the leftmost curve.
+    repeated int32 entrance_lane_indices = 5;
+
+    // All traffic lanes that leads to the end of the traffic way. Sorted in
+    // ascending distance from the leftmost curve.
+    repeated int32 exit_lane_indices = 6;
 
     // The flow percentile this traffic way belongs to. It indicates how busy
     // this traffic way is.
-    float flow_percentile = 3;
+    float flow_percentile = 7;
 }
