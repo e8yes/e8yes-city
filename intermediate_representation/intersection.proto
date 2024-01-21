@@ -56,7 +56,7 @@ message TrafficConnection {
     string inbound_traffic_way_id = 1;
 
     // The zero-indexed lane number from which the intersection connects.
-    int32 lane_number = 2;
+    int32 inbound_lane_number = 2;
 
     // The outbound traffic way to which the intersection connnects.
     string outbound_traffic_way_id = 3;
