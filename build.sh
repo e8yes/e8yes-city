@@ -29,4 +29,5 @@ echo "intermediate_representation.catmul_rom_test" && python3 -m intermediate_re
 echo "procedural.probing.population_test" && python3 -m procedural.probing.population_test
 echo "procedural.street.curve_test" && python3 -m procedural.street.curve_test
 echo "procedural.street.intersection_area_test" && python3 -m procedural.street.intersection_area_test
+echo "procedural.street.ir_intersection_test" && python3 -m procedural.street.ir_intersection_test
 echo "procedural.street.ir_traffic_way_test" && python3 -m procedural.street.ir_traffic_way_test
